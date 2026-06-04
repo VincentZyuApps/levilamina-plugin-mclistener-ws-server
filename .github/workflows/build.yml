@@ -158,57 +158,27 @@ jobs:
           gh release delete "$VERSION" --yes --cleanup-tag 2>/dev/null || echo "No existing release to delete"
           sleep 3
 
-      - name: Generate release notes
+      - name: Generate release notes from template
         run: |
           VERSION="${{ needs.check.outputs.version }}"
           REPO="${{ github.repository }}"
           PREV_TAG=$(git tag --sort=-v:refname | grep -v "^v${VERSION}$" | head -1)
 
-          {
-            echo "## 📦 mclistener-ws-server v${VERSION}"
-            echo ""
-            echo "A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock server with chat platforms."
-            echo ""
-            echo "### ⬇️ Downloads"
-            echo ""
-            echo "| File | Description |"
-            echo "|------|-------------|"
-            echo "| [mclistener-ws-server-server-windows-x64.zip](https://github.com/${REPO}/releases/download/v${VERSION}/mclistener-ws-server-server-windows-x64.zip) | Plugin package for LeviLamina |"
-            echo ""
-            echo "### 📥 Install via lip"
-            echo ""
-            echo '```bash'
-            echo "lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server"
-            echo '```'
-            echo ""
-            echo "### 📦 Manual Install"
-            echo ""
-            echo "1. Download the zip file"
-            echo "2. Extract to your server's \`plugins/\` directory"
-            echo "3. Restart the server"
-            echo ""
-            echo "---"
-            echo ""
-            echo "### What's Changed"
-            echo ""
-            if [ -n "$PREV_TAG" ]; then
-              echo "Changes since **${PREV_TAG}**:"
-              echo ""
-              git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (\`%h\`)" --reverse
-            else
-              echo "All changes:"
-              echo ""
-              git log --pretty=format:"- %s (\`%h\`)" --reverse
-            fi
-            echo ""
-            echo ""
-            echo "---"
-            echo ""
-            echo "### Build Info"
-            echo "- **Build date**: $(date -u '+%Y-%m-%d %H:%M UTC')"
-            echo "- **Commit**: [\`${GITHUB_SHA::7}\`](https://github.com/${REPO}/commit/${GITHUB_SHA})"
-            echo ""
-          } > release_notes.md
+          if [ -n "$PREV_TAG" ]; then
+            COMMIT_LOG=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (\`%h\`)" --reverse)
+          else
+            COMMIT_LOG=$(git log --pretty=format:"- %s (\`%h\`)" --reverse)
+          fi
+
+          sed \
+            -e "s|__REPO__|${REPO}|g" \
+            -e "s|__VERSION__|${VERSION}|g" \
+            -e "s|__BASE_URL__|https://github.com/${REPO}/releases/download/v${VERSION}|g" \
+            -e "s|__COMMIT_LOG__|${COMMIT_LOG}|g" \
+            -e "s|__BUILD_DATE__|$(date -u '+%Y-%m-%d %H:%M UTC')|g" \
+            -e "s|__COMMIT_HASH__|[\`${GITHUB_SHA::7}\`](https://github.com/${REPO}/commit/${GITHUB_SHA})|g" \
+            -e "s|__CHANGELOG_URL__|https://github.com/${REPO}/compare/${PREV_TAG:-v${VERSION}}...v${VERSION}|g" \
+            .github/release_template.md > release_notes.md
 
           echo "📝 Generated release notes:"
           cat release_notes.md
@@ -222,4 +192,5 @@ jobs:
             --title "mclistener-ws-server ${VERSION}" \
             --notes-file release_notes.md \
             --latest \
-            mclistener-ws-server-server-windows-x64.zip
+            mclistener-ws-server-server-windows-x64.zip \
+            tooth.json
