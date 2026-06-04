@@ -1,67 +1,101 @@
-name: Build LeviLamina Plugin
+name: Build & Release
 
 on:
   push:
     branches: [main, master]
-  workflow_dispatch:  # 允许手动触发
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
     inputs:
       version:
-        description: '版本号 (如 0.0.1-alpha.1)'
+        description: 'Override version (leave empty to use tooth.json)'
         required: false
-        default: 'manual'
+        default: ''
+      create_release:
+        description: 'Create GitHub Release'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
-  # 检查是否需要构建
+  # ── Check Commit Message ──────────────────────────────
   check:
+    name: Check
     runs-on: ubuntu-latest
     outputs:
-      should_build: ${{ steps.check.outputs.should_build }}
-      version: ${{ steps.check.outputs.version }}
+      should_build: ${{ steps.flags.outputs.should_build }}
+      should_release: ${{ steps.flags.outputs.should_release }}
+      version: ${{ steps.flags.outputs.version }}
     steps:
-      - name: Check build trigger
-        id: check
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Parse flags
+        id: flags
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          # 手动触发时直接构建
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "should_build=true" >> $GITHUB_OUTPUT
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-            echo "✅ 手动触发，版本: ${{ github.event.inputs.version }}"
-          # Push 时检查 commit message 是否包含 "build version"
-          else
-            COMMIT_MSG="${{ github.event.head_commit.message }}"
-            echo "📝 Commit message: $COMMIT_MSG"
-            
-            if [[ "$COMMIT_MSG" =~ build[[:space:]]+version[[:space:]]+([^[:space:]]+) ]]; then
-              VERSION="${BASH_REMATCH[1]}"
-              echo "should_build=true" >> $GITHUB_OUTPUT
-              echo "version=$VERSION" >> $GITHUB_OUTPUT
-              echo "✅ 检测到构建指令，版本: $VERSION"
-            else
-              echo "should_build=false" >> $GITHUB_OUTPUT
-              echo "version=none" >> $GITHUB_OUTPUT
-              echo "⏭️ 跳过构建 (commit message 中未找到 'build version <版本号>')"
-            fi
+          VERSION=$(jq -r '.version' tooth.json)
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
           fi
 
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "📦 Version: $VERSION"
+
+          # PRs: always build, never release
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "should_build=true"    >> "$GITHUB_OUTPUT"
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # workflow_dispatch: build always, release if checkbox
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_build=true"    >> "$GITHUB_OUTPUT"
+            echo "should_release=${{ github.event.inputs.create_release }}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Push: parse commit message for keywords
+          BUILD=false
+          RELEASE=false
+          if echo "$COMMIT_MSG" | grep -qi "build release"; then
+            BUILD=true
+            RELEASE=true
+          elif echo "$COMMIT_MSG" | grep -qi "build action"; then
+            BUILD=true
+          fi
+
+          echo "should_build=$BUILD"   >> "$GITHUB_OUTPUT"
+          echo "should_release=$RELEASE" >> "$GITHUB_OUTPUT"
+          echo "📋 Flags: build=$BUILD release=$RELEASE"
+
+  # ── Build ─────────────────────────────────────────────
   build:
+    name: Build
     needs: check
     if: needs.check.outputs.should_build == 'true'
     runs-on: windows-latest
-    
-    steps:
-      - name: 🚀 Show build info
-        run: |
-          echo "🚀 开始构建版本: ${{ needs.check.outputs.version }}"
 
-      - name: 📥 Checkout
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 🔧 Setup xmake
+      - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
 
-      - name: 💾 Cache xmake packages
+      - name: Cache xmake packages
         uses: actions/cache@v4
         with:
           path: |
@@ -71,18 +105,121 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-xmake-
 
-      - name: 📦 Update xmake repositories
+      - name: Update xmake repositories
         run: xmake repo -u
 
-      - name: ⚙️ Configure
+      - name: Configure
         run: xmake f -y -p windows -a x64 -m release
 
-      - name: 🔨 Build
+      - name: Build
         run: xmake
 
-      - name: 📤 Upload artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: mclistener-ws-server-${{ needs.check.outputs.version }}-windows-x64
           path: bin/mclistener-ws-server/
           retention-days: 30
+
+  # ── Release to GitHub ─────────────────────────────────
+  release:
+    name: Release to GitHub
+    needs: [check, build]
+    if: needs.check.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mclistener-ws-server-${{ needs.check.outputs.version }}-windows-x64
+          path: build-output
+
+      - name: Prepare release zip
+        run: |
+          VERSION="${{ needs.check.outputs.version }}"
+          mkdir -p release/mclistener-ws-server
+          cp -r build-output/* release/mclistener-ws-server/
+          cd release
+          zip -r "../mclistener-ws-server-server-windows-x64.zip" .
+
+      - name: Delete existing release & tag (force fresh)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="v${{ needs.check.outputs.version }}"
+          echo "🗑️ Cleaning up existing release/tag: $VERSION"
+          gh release delete "$VERSION" --yes --cleanup-tag 2>/dev/null || echo "No existing release to delete"
+          sleep 3
+
+      - name: Generate release notes
+        run: |
+          VERSION="${{ needs.check.outputs.version }}"
+          REPO="${{ github.repository }}"
+          PREV_TAG=$(git tag --sort=-v:refname | grep -v "^v${VERSION}$" | head -1)
+
+          {
+            echo "## 📦 mclistener-ws-server v${VERSION}"
+            echo ""
+            echo "A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock server with chat platforms."
+            echo ""
+            echo "### ⬇️ Downloads"
+            echo ""
+            echo "| File | Description |"
+            echo "|------|-------------|"
+            echo "| [mclistener-ws-server-server-windows-x64.zip](https://github.com/${REPO}/releases/download/v${VERSION}/mclistener-ws-server-server-windows-x64.zip) | Plugin package for LeviLamina |"
+            echo ""
+            echo "### 📥 Install via lip"
+            echo ""
+            echo '```bash'
+            echo "lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server"
+            echo '```'
+            echo ""
+            echo "### 📦 Manual Install"
+            echo ""
+            echo "1. Download the zip file"
+            echo "2. Extract to your server's \`plugins/\` directory"
+            echo "3. Restart the server"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### What's Changed"
+            echo ""
+            if [ -n "$PREV_TAG" ]; then
+              echo "Changes since **${PREV_TAG}**:"
+              echo ""
+              git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (\`%h\`)" --reverse
+            else
+              echo "All changes:"
+              echo ""
+              git log --pretty=format:"- %s (\`%h\`)" --reverse
+            fi
+            echo ""
+            echo ""
+            echo "---"
+            echo ""
+            echo "### Build Info"
+            echo "- **Build date**: $(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo "- **Commit**: [\`${GITHUB_SHA::7}\`](https://github.com/${REPO}/commit/${GITHUB_SHA})"
+            echo ""
+          } > release_notes.md
+
+          echo "📝 Generated release notes:"
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="v${{ needs.check.outputs.version }}"
+          gh release create "$VERSION" \
+            --title "mclistener-ws-server ${VERSION}" \
+            --notes-file release_notes.md \
+            --latest \
+            mclistener-ws-server-server-windows-x64.zip

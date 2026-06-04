@@ -1,11 +1,11 @@
 {
     "format_version": 3,
     "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
-    "tooth": "gitee.com/vincent-zyu/levilamina-plugin-mclistener-ws-server",
-    "version": "0.0.1",
+    "tooth": "github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server",
+    "version": "0.6.3-alpha.1+20260605",
     "info": {
         "name": "mclistener-ws-server",
-        "description": "A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock server with chat platforms like QQ via koishi bot.",
+        "description": "🔗🎮📡 A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock server with chat platforms like QQ / Kook / Discord / Telegram etc. via a WebSocket client, for example Koishi bot plugin.💬🤖 🔗🎮📡 基于 LeviLamina 的 WebSocket 服务器插件。通过 WebSocket 客户端（如 Koishi 机器人），实现我的世界基岩版服务器与 QQ、Kook、Discord、Telegram 等聊天平台的互通。💬🤖",
         "tags": [
             "platform:levilamina",
             "type:mod"

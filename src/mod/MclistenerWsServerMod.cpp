@@ -59,7 +59,7 @@ LL_TYPE_INSTANCE_HOOK(
                 g_modInstance->getSelf().getLogger().debug("[Hook] {} said: {}", playerName, msg);
                 
                 nlohmann::json jsonMsg;
-                jsonMsg["type"] = "player_msg";
+                jsonMsg["type"] = "player_chat";
                 jsonMsg["player_name"] = playerName;
                 jsonMsg["content"] = msg;
                 
@@ -180,7 +180,7 @@ bool MclistenerWsServerMod::enable() {
                 std::string type = json.value("type", "");
                 getSelf().getLogger().debug("Parsed message type: {}", type);
                 
-                if (type == "group_to_server") {
+                if (type == "chat_platform_to_server") {
                     std::string groupId = json.value("group_id", "");
                     std::string groupName = json.value("group_name", "");
                     std::string nickname = json.value("nickname", "未知用户");
@@ -332,7 +332,7 @@ bool MclistenerWsServerMod::enable() {
                     getSelf().getLogger().debug("[Chat] {} said: {}", playerName, message);
 
                     nlohmann::json msg;
-                    msg["type"] = "player_msg";
+                    msg["type"] = "player_chat";
                     msg["player_name"] = playerName;
                     msg["content"] = message;
 
@@ -372,7 +372,7 @@ bool MclistenerWsServerMod::enable() {
                     std::string message = event.message();
 
                     nlohmann::json msg;
-                    msg["type"] = "player_msg";
+                    msg["type"] = "player_chat";
                     msg["player_name"] = playerName;
                     msg["content"] = message;
 

@@ -1,9 +1,17 @@
-# 使用文档
+# 部署运维手册
 
 ## 安装
 
-1. 从 [GitHub Releases](https://github.com/VincentZyu233/levilamina-plugin-mclistener-ws-server/releases) 下载最新版本
-2. 解压后将 `mclistener-ws-server` 文件夹放入服务端的 `plugins/` 目录
+### 使用 lip 安装（推荐）
+
+```bash
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
+```
+
+### 手动安装
+
+1. 从 [GitHub Releases](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases) 下载最新版本
+2. 解压后将 `mclistener-ws-server` 文件夹放入服务端 `plugins/` 目录
 3. 启动服务端，插件会自动生成配置文件
 
 ```
@@ -20,11 +28,7 @@ BDS服务端/
 
 ## 配置文件
 
-首次启动后，配置文件会自动生成在：
-
-```
-plugins/mclistener-ws-server/config/config.json
-```
+首次启动后，配置文件自动生成在 `plugins/mclistener-ws-server/config/config.json`。
 
 ### 完整配置示例
 
@@ -70,9 +74,9 @@ plugins/mclistener-ws-server/config/config.json
 | `"warn"` | 警告 | 输出警告和错误 |
 | `"info"` | 信息（推荐） | 输出一般信息、警告和错误 |
 | `"debug"` | 调试 | 输出详细调试信息（开发用） |
-| `"trace"` | 追踪 | 输出所有信息，包括函数调用（开发用） |
+| `"trace"` | 追踪 | 输出所有信息（开发用） |
 
-**建议**：正常使用设置为 `"info"`，遇到问题排查时设置为 `"debug"`
+**建议**：正常使用设置为 `"info"`，排查问题时设置为 `"debug"`。
 
 ---
 
@@ -80,18 +84,18 @@ plugins/mclistener-ws-server/config/config.json
 
 | 值 | 说明 | 适用场景 |
 |----|------|----------|
-| `"event"` | 使用 LeviLamina 的 PlayerChatEvent | 默认方式，与其他插件兼容性最好 |
+| `"event"` | 使用 LeviLamina 的 PlayerChatEvent | 默认方式，兼容性最好 |
 | `"hook_packet"` | 直接 Hook TextPacket 处理函数 | 当有插件（如 GwChat）拦截事件时使用 |
 | `"both"` | 同时使用两种方式 | 调试用，可能导致重复消息 |
 
 **选择建议**：
-- 如果聊天消息能正常转发，使用默认的 `"event"`
-- 如果聊天消息无法转发（被其他聊天美化插件如 GwChat 拦截），使用 `"hook_packet"`
-- 如果不确定哪种方式有效，可以先用 `"both"` 测试，再选择其中一种
+- 聊天消息能正常转发 → 默认 `"event"`
+- 聊天消息无法转发（被 GwChat 等拦截） → 改用 `"hook_packet"`
+- 不确定哪种有效 → 先用 `"both"` 测试，再选其中一种
 
 **技术说明**：
-- `event` 模式使用 LeviLamina 的事件系统，如果有插件（如 GwChat）取消了 `PlayerChatEvent`，则无法捕获聊天
-- `hook_packet` 模式使用高优先级（High=100）直接 Hook `ServerNetworkHandler::$handle` 处理 TextPacket，在 LeviLamina 的事件系统（Normal=200）之前执行，因此不受其他插件影响
+- `event` 模式使用 LeviLamina 事件系统，若其他插件取消了 `PlayerChatEvent` 则无法捕获
+- `hook_packet` 使用高优先级（High=100）Hook `ServerNetworkHandler::$handle`，在事件系统（Normal=200）之前执行，不受其他插件影响
 
 ---
 
@@ -101,14 +105,14 @@ plugins/mclistener-ws-server/config/config.json
 
 | 占位符 | 说明 | 示例 |
 |--------|------|------|
-| `{group_name}` | 群名称 | `我的世界交流群` |
-| `{group_id}` | 群号 | `761132406` |
-| `{nickname}` | 发送者昵称 | `VincentZyu` |
+| `{group_name}` | 群名称 / 平台标识 | `onebot` |
+| `{group_id}` | 群号 / 频道 ID | `1085190201` |
+| `{nickname}` | 发送者昵称 | `Alice` |
 | `{message}` | 消息内容 | `大家好` |
 
-#### Minecraft 颜色代码
+> 注意：`group_name` 字段填入的是平台标识（如 `onebot`、`discord`），**并非**真实群名/频道名，这是由 Koishi 客户端决定的。
 
-格式中可以使用 Minecraft 颜色代码（`§` + 代码）：
+#### Minecraft 颜色代码
 
 | 代码 | 颜色 | 代码 | 颜色 |
 |------|------|------|------|
@@ -136,55 +140,37 @@ plugins/mclistener-ws-server/config/config.json
 §6§l[{group_name}]§r §b({group_id})§r §a§o{nickname}§r§f: {message}
 ```
 
-显示效果：**[我的世界交流群]** (761132406) *VincentZyu*: 大家好
+显示效果：**[onebot]** (1085190201) *Alice*: 大家好
 
 简洁格式：
 ```json
 "groupMessageFormat": "§b[QQ]§r {nickname}: {message}"
 ```
 
-显示效果：[QQ] VincentZyu: 大家好
+显示效果：[QQ] Alice: 大家好
 
 ---
 
-## WebSocket 消息格式
+## WebSocket 消息格式速查
+
+> 完整协议说明见 [主 README](../README.md#-websocket-协议)
 
 ### 服务端 → 客户端
 
-**玩家加入**
 ```json
-{
-    "type": "player_join",
-    "player_name": "VincentZyu"
-}
-```
-
-**玩家离开**
-```json
-{
-    "type": "player_leave",
-    "player_name": "VincentZyu"
-}
-```
-
-**玩家聊天**
-```json
-{
-    "type": "player_msg",
-    "player_name": "VincentZyu",
-    "content": "Hello World"
-}
+{"type": "player_join", "player_name": "Steve"}
+{"type": "player_leave", "player_name": "Steve"}
+{"type": "player_chat", "player_name": "Steve", "content": "Hello"}
 ```
 
 ### 客户端 → 服务端
 
-**群消息转发到游戏**
 ```json
 {
-    "type": "group_msg",
-    "group_id": "761132406",
-    "group_name": "我的世界交流群",
-    "nickname": "VincentZyu",
+    "type": "chat_platform_to_server",
+    "group_id": "1085190201",
+    "group_name": "onebot",
+    "nickname": "Alice",
     "message": "大家好"
 }
 ```
@@ -198,16 +184,32 @@ A: 是的，修改 `config.json` 后需要重启服务端才能生效。
 
 ### Q: WebSocket 连接不上？
 A: 检查：
-1. 服务器防火墙是否开放了对应端口（默认 60201）
+1. 服务器防火墙是否开放了对应端口（默认 **60201**）
 2. 云服务器安全组是否放行该端口
-3. 插件是否正确加载（查看服务端日志）
+3. 服务端是否正确加载了插件（查看服务端日志）
+4. Koishi 客户端 `wsServerUrl` 是否与服务端地址端口一致
 
 ### Q: 如何测试 WebSocket 连接？
-A: 使用 wscat 工具：
+A: 使用 `wscat` 工具：
 ```bash
 npm install -g wscat
 wscat -c ws://你的服务器IP:60201
 ```
 
 ### Q: 群消息能转发到游戏，但游戏消息不能转发到群？
-A: 这是已知问题，正在排查中。请确保 `enablePlayerChatBroadcast` 设置为 `true`，并将 `logLevel` 设置为 `"debug"` 查看详细日志。
+A: 检查：
+1. 确认 `enablePlayerChatBroadcast` 为 `true`
+2. 将 `logLevel` 设为 `"debug"` 查看日志
+3. 如果使用 `chatCaptureMode: event`，确认没有其他插件拦截 `PlayerChatEvent`
+4. 如果被其他插件拦截，切换为 `hook_packet` 模式
+
+### Q: Koishi 客户端默认端口是 60601，但本插件默认是 60201？
+A: 两个默认端口不同，需要在 Koishi 客户端配置中将 `wsServerUrl` 设置为 `ws://你的IP:60201` 以匹配本插件。或者修改本插件的 `port` 配置为其他端口。
+
+---
+
+## 参考链接
+
+- [主 README](../README.md)
+- [koishi-plugin-mclistener-ws-client](https://github.com/VincentZyuApps/koishi-plugin-mclistener-ws-client) — Koishi 客户端插件
+- [LeviLamina 文档](https://lamina.levimc.org/)
