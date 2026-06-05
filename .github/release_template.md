@@ -15,12 +15,10 @@
 
 ```bash
 lip install github.com/__REPO__@__VERSION__
-```
-
-If latest-version resolution works in your environment, you may also try:
-
-```bash
+# If latest-version resolution works in your environment, you may also try:
 lip install github.com/__REPO__
+# To update an already installed package:
+lip update github.com/__REPO__@__VERSION__
 ```
 
 ### 📦 Manual Install

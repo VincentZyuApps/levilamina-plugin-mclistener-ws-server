@@ -32,13 +32,11 @@ A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock Server with
 ### Step 1: 安装服务端插件
 
 ```bash
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.3
-```
-
-如果你的环境里 latest-version 解析正常，也可以尝试：
-
-```bash
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.10
+# 如果你的环境里 lip 解析 latest-version 正常，也可以尝试：
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
+# 如果是已经安装，想要更新
+lip update github.com/__REPO__@__VERSION__
 ```
 
 或手动下载 Release 解压到 `plugins/` 目录后重启服务端。
@@ -125,7 +123,7 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```bash
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@<版本号>
 # 比如：
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.4
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.10
 # 如果你的环境里 latest-version 解析正常，也可以尝试让lip直接解析最新的版本号
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```
@@ -215,6 +213,18 @@ BDS服务端/
     "message": "大家好"
 }
 ```
+
+---
+
+## 🏗️ 技术栈
+
+| 组件 | 类别 | 说明 |
+|:---|:---|:---|
+| [![LeviLamina](https://img.shields.io/badge/LeviLamina-26.10.x-7FA973?style=flat-square&logo=cplusplus&logoColor=white)](https://github.com/LiteLDev/LeviLamina) | 插件框架 | BDS 模组加载器，提供事件系统、Hook、配置加载等 |
+| [![nlohmann/json 3.11](https://img.shields.io/badge/nlohmann/json-3.11-585858?style=flat-square&logo=json&logoColor=white)](https://github.com/nlohmann/json) | 第三方库 | JSON 序列化/反序列化（LeviLamina 内置） |
+| [![WinSock2](https://img.shields.io/badge/WinSock2-Ws2__32-0078D4?style=flat-square&logo=windows&logoColor=white)](https://learn.microsoft.com/en-us/windows/win32/winsock/windows-sockets-start-page-2) | 系统 API | Windows TCP Socket，WebSocket 传输层 |
+| [![levibuildscript](https://img.shields.io/badge/levibuildscript-xmake-0094D9?style=flat-square)](https://github.com/LiteLDev/LeviBuildScript) | 构建工具 | LeviLamina xmake 构建规则与打包脚本 |
+| SHA1 + Base64 | 手写实现 | WebSocket 握手密钥计算与帧编解码，零第三方依赖 |
 
 ---
 

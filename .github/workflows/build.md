@@ -80,7 +80,7 @@ flowchart TB
 
 ```json
 {
-    "version": "0.6.3-alpha.1+20260605"
+    "version": "0.6.3-alpha.10"
 }
 ```
 
@@ -94,7 +94,7 @@ flowchart TB
    git push
    ```
 
-Release 标签格式为 `v{version}`（如 `v0.6.3-alpha.1+20260605`），与 `tooth.json` 的下载 URL 模板一致。
+Release 标签格式为 `v{version}`（如 `vx.y.z-alpha.w+yyyymmdd`），与 `tooth.json` 的下载 URL 模板一致。
 
 ## 📁 Release 产物结构
 

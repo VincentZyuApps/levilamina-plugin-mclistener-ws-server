@@ -44,6 +44,10 @@ struct Config {
     //   {nickname}   — 发送者昵称
     //   {message}    — 消息内容
     std::string groupMessageFormat = "§6§l[{group_name}]§r §b({group_id})§r §a§o{nickname}§r§f: {message}";
+
+    // ── 🔑 WebSocket Token 认证 ─────────────────────────
+    // 客户端连接时需要提供的 Token（空字符串表示不校验）
+    std::string wsToken = "";
 };
 
 } // namespace mclistener_ws_server
