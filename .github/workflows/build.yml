@@ -170,14 +170,17 @@ jobs:
             COMMIT_LOG=$(git log --pretty=format:"- %s (\`%h\`)" --reverse)
           fi
 
+          # Escape sed-special chars in COMMIT_LOG (& = whole-match, \ = escape)
+          COMMIT_LOG=$(printf '%s\n' "$COMMIT_LOG" | sed 's/[&\\]/\\&/g; s/\x1f/\\x1f/g')
+
           sed \
-            -e "s|__REPO__|${REPO}|g" \
-            -e "s|__VERSION__|${VERSION}|g" \
-            -e "s|__BASE_URL__|https://github.com/${REPO}/releases/download/v${VERSION}|g" \
-            -e "s|__COMMIT_LOG__|${COMMIT_LOG}|g" \
-            -e "s|__BUILD_DATE__|$(date -u '+%Y-%m-%d %H:%M UTC')|g" \
-            -e "s|__COMMIT_HASH__|[\`${GITHUB_SHA::7}\`](https://github.com/${REPO}/commit/${GITHUB_SHA})|g" \
-            -e "s|__CHANGELOG_URL__|https://github.com/${REPO}/compare/${PREV_TAG:-v${VERSION}}...v${VERSION}|g" \
+            -e "s\x1f__REPO__\x1f${REPO}\x1fg" \
+            -e "s\x1f__VERSION__\x1f${VERSION}\x1fg" \
+            -e "s\x1f__BASE_URL__\x1fhttps://github.com/${REPO}/releases/download/v${VERSION}\x1fg" \
+            -e "s\x1f__COMMIT_LOG__\x1f${COMMIT_LOG}\x1fg" \
+            -e "s\x1f__BUILD_DATE__\x1f$(date -u '+%Y-%m-%d %H:%M UTC')\x1fg" \
+            -e "s\x1f__COMMIT_HASH__\x1f[\`${GITHUB_SHA::7}\`](https://github.com/${REPO}/commit/${GITHUB_SHA})\x1fg" \
+            -e "s\x1f__CHANGELOG_URL__\x1fhttps://github.com/${REPO}/compare/${PREV_TAG:-v${VERSION}}...v${VERSION}\x1fg" \
             .github/release_template.md > release_notes.md
 
           echo "📝 Generated release notes:"
