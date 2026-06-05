@@ -18,6 +18,10 @@ struct Config {
     // 🔌 监听端口
     int port = 60605;
     
+    // ── 🔑 WebSocket Token 认证 ─────────────────────────
+    // 客户端连接时需要提供的 Token（空字符串表示不校验）
+    std::string wsToken = "";
+    
     // ── 🎮 功能开关 ─────────────────────────────────────
     // ✅ 玩家加入服务器时广播通知
     bool enablePlayerJoinBroadcast = true;
@@ -44,10 +48,6 @@ struct Config {
     //   {nickname}   — 发送者昵称
     //   {message}    — 消息内容
     std::string groupMessageFormat = "§6§l[{group_name}]§r §b({group_id})§r §a§o{nickname}§r§f: {message}";
-
-    // ── 🔑 WebSocket Token 认证 ─────────────────────────
-    // 客户端连接时需要提供的 Token（空字符串表示不校验）
-    std::string wsToken = "";
 };
 
 } // namespace mclistener_ws_server

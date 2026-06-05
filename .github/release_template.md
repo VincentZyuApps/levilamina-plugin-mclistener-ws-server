@@ -23,9 +23,16 @@ lip update github.com/__REPO__@__VERSION__
 
 ### 📦 Manual Install
 
-1. Download the zip file
-2. Extract `mclistener-ws-server/` to your server's `plugins/` directory
-3. Restart the server
+1. Download `mclistener-ws-server-server-windows-x64.zip`
+2. Unzip, you'll get:
+   ```
+   mclistener-ws-server/
+   ├── manifest.json
+   ├── mclistener-ws-server.dll
+   └── mclistener-ws-server.pdb
+   ```
+3. Copy `mclistener-ws-server/` folder to your server's `plugins/` directory
+4. Restart the server
 
 ---
 

@@ -95,7 +95,7 @@ def main():
         print(
             f"  {S.BOLD}Usage:{S.RESET} python {sys.argv[0]} {S.CYAN}<new_version>{S.RESET}"
         )
-        print(f"  {S.BOLD}e.g.:{S.RESET}  python {sys.argv[0]} 0.7.0")
+        print(f"  {S.BOLD}e.g.:{S.RESET}  python {sys.argv[0]} x.y.z-beta.w")
         print()
         sys.exit(1)
 

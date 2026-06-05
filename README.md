@@ -32,7 +32,7 @@ A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock Server with
 ### Step 1: 安装服务端插件
 
 ```bash
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.10
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.12
 # 如果你的环境里 lip 解析 latest-version 正常，也可以尝试：
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 # 如果是已经安装，想要更新
@@ -97,9 +97,12 @@ lip update github.com/__REPO__@__VERSION__
 
 **MC 服务器 → 聊天平台**
 - 玩家聊天消息自动广播到 WebSocket 客户端
+##### **QQ（OneBot v11）**: ![](docs/images/preview-mc-server-to-onebotv11-chat-platform.png)
 
 **聊天平台 → MC 服务器**
 - 群聊消息转发到游戏内，支持自定义消息格式
+##### **QQ（OneBot v11）**: ![](docs/images/preview-onebotv11-chat-platform-to-mc-server.png)
+##### **Discord**: ![](docs/images/preview-discord-chat-platform-to-mc-server.png)
 
 ### ⚙️ 灵活的消息捕获方式
 
@@ -123,7 +126,7 @@ lip update github.com/__REPO__@__VERSION__
 ```bash
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@<版本号>
 # 比如：
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.10
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.12
 # 如果你的环境里 latest-version 解析正常，也可以尝试让lip直接解析最新的版本号
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```
@@ -156,6 +159,7 @@ BDS服务端/
     "logLevel": "info",
     "host": "0.0.0.0",
     "port": 60201,
+    "wsToken": "",
     "enablePlayerJoinBroadcast": true,
     "enablePlayerLeaveBroadcast": true,
     "enablePlayerChatBroadcast": true,
@@ -171,6 +175,7 @@ BDS服务端/
 | `logLevel` | string | `"info"` | 日志级别 |
 | `host` | string | `"0.0.0.0"` | WebSocket 监听地址 |
 | `port` | int | `60201` | WebSocket 监听端口 |
+| `wsToken` | string | `""` | WebSocket 连接 Token（空字符串表示不校验） |
 | `enablePlayerJoinBroadcast` | bool | `true` | 广播玩家加入事件 |
 | `enablePlayerLeaveBroadcast` | bool | `true` | 广播玩家离开事件 |
 | `enablePlayerChatBroadcast` | bool | `true` | 广播玩家聊天事件 |
