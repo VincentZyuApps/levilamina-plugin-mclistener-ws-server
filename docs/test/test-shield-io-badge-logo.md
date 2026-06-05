@@ -1,4 +1,4 @@
-# shields.io Badge Logo 测试 — Windows Logo (第二批)
+# shields.io Badge Logo 测试 — Windows Logo
 
 ## 6: badge 端点 (非 static/v1) + logo=windows
 [![RELEASE](https://img.shields.io/badge/RELEASE-WINDOWS--64-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases)
@@ -91,3 +91,37 @@
 
 ## 30: social + base64 SVG (浅色底深色图标)
 ![](https://img.shields.io/badge/TEST-WINDOWS-0078D4?style=social&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTAgMGgxMS4zNzd2MTEuMzcySDB6TTEyLjYyMyAwSDI0djExLjM3MkgxMi42MjN6TTAgMTIuNjIzaDExLjM3N1YyNEgweiBNMTIuNjIzIDEyLjYyM0gyNFYyNEgxMi42MjN6Ii8+PC9zdmc+&logoColor=0078D4)
+
+---
+
+# shields.io Badge Logo 测试 — sha1 + base64 视觉表达
+
+## 候选 1: logo=openssl
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=openssl&logoColor=white)
+
+## 候选 2: logo=letsencrypt
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=letsencrypt&logoColor=white)
+
+## 候选 3: logo=virustotal
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=virustotal&logoColor=white)
+
+## 候选 4: logo=hashicorp
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=hashicorp&logoColor=white)
+
+## 候选 5: logo=lock
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=lock&logoColor=white)
+
+## 候选 6: logo=codefactor
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=codefactor&logoColor=white)
+
+## 候选 7: logo=gnu
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=gnu&logoColor=white)
+
+## 候选 8: logo=llvm
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=llvm&logoColor=white)
+
+## 候选 9: logo=asciidoctor
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=asciidoctor&logoColor=white)
+
+## 候选 10: logo=git
+![](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square&logo=git&logoColor=white)

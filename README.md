@@ -15,7 +15,7 @@ A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock Server with
 [![MSVC](https://img.shields.io/badge/MSVC-2022-0078D4?style=for-the-badge&logo=cplusplus&logoColor=white)](https://learn.microsoft.com/en-us/cpp/)
 [![GitHub CI](https://img.shields.io/github/actions/workflow/status/VincentZyuApps/levilamina-plugin-mclistener-ws-server/build.yml?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/actions)
 
-[![RELEASE](https://img.shields.io/static/v1?label=RELEASE&message=WINDOWS-64&color=0078D4&style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTAgMGgxMS4zNzd2MTEuMzcySDB6TTEyLjYyMyAwSDI0djExLjM3MkgxMi42MjN6TTAgMTIuNjIzaDExLjM3N1YyNEgweiBNMTIuNjIzIDEyLjYyM0gyNFYyNEgxMi42MjN6IiBmaWxsPSIjZmZmIi8+PC9zdmc+)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases)
+[![RELEASE](https://img.shields.io/static/v1?label=RELEASE&message=WINDOWS-x64&color=0078D4&style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTAgMGgxMS4zNzd2MTEuMzcySDB6TTEyLjYyMyAwSDI0djExLjM3MkgxMi42MjN6TTAgMTIuNjIzaDExLjM3N1YyNEgweiBNMTIuNjIzIDEyLjYyM0gyNFYyNEgxMi42MjN6IiBmaWxsPSIjZmZmIi8+PC9zdmc+)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases)
 
 [![QQ群](https://img.shields.io/badge/QQ群-1085190201-12B7F5?style=flat-square&logo=qq&logoColor=white)](https://qm.qq.com/q/4vjto4V7Di)
 
@@ -64,7 +64,7 @@ lip update github.com/__REPO__@__VERSION__
 
 支持 Koishi Bot 接入，理论上 Koishi 支持的大部分聊天平台均可使用。
 
-> 已有现成的 Koishi 插件: [![Koishi Plugin](https://img.shields.io/badge/Koishi-Plugin-6c5cb5?style=flat-square&logo=koishi&logoColor=white&labelColor=5546a3)](https://github.com/VincentZyuApps/koishi-plugin-mclistener-ws-client)[`koishi-plugin-mclistener-ws-client`](https://github.com/VincentZyuApps/koishi-plugin-mclistener-ws-client)
+> 已有现成的 Koishi 插件: [![Koishi Plugin](https://img.shields.io/badge/Koishi-Plugin-6c5cb5?style=flat-square&logo=typescript&logoColor=white&labelColor=5546a3)](https://github.com/VincentZyuApps/koishi-plugin-mclistener-ws-client)[`koishi-plugin-mclistener-ws-client`](https://github.com/VincentZyuApps/koishi-plugin-mclistener-ws-client)
 
 - **QQ 接入（OneBot v11）**：Koishi 通过 `@koishijs/plugin-adapter-onebot` 适配器，对接 OneBot v11 协议实现端（如 LLOneBot、NapCat、Lagrange.OneBot 等）
 - **Discord 接入**：Koishi 通过 `@koishijs/plugin-adapter-discord` 适配器，直连 Discord Gateway API
@@ -222,9 +222,9 @@ BDS服务端/
 |:---|:---|:---|
 | [![LeviLamina](https://img.shields.io/badge/LeviLamina-26.10.x-7FA973?style=flat-square&logo=cplusplus&logoColor=white)](https://github.com/LiteLDev/LeviLamina) | 插件框架 | BDS 模组加载器，提供事件系统、Hook、配置加载等 |
 | [![nlohmann/json 3.11](https://img.shields.io/badge/nlohmann/json-3.11-585858?style=flat-square&logo=json&logoColor=white)](https://github.com/nlohmann/json) | 第三方库 | JSON 序列化/反序列化（LeviLamina 内置） |
-| [![WinSock2](https://img.shields.io/badge/WinSock2-Ws2__32-0078D4?style=flat-square&logo=windows&logoColor=white)](https://learn.microsoft.com/en-us/windows/win32/winsock/windows-sockets-start-page-2) | 系统 API | Windows TCP Socket，WebSocket 传输层 |
-| [![levibuildscript](https://img.shields.io/badge/levibuildscript-xmake-0094D9?style=flat-square)](https://github.com/LiteLDev/LeviBuildScript) | 构建工具 | LeviLamina xmake 构建规则与打包脚本 |
-| SHA1 + Base64 | 手写实现 | WebSocket 握手密钥计算与帧编解码，零第三方依赖 |
+| [![WinSock2](https://img.shields.io/badge/WinSock2-Ws2__32-0078D4?style=flat-square&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTAgMGgxMS4zNzd2MTEuMzcySDB6TTEyLjYyMyAwSDI0djExLjM3MkgxMi42MjN6TTAgMTIuNjIzaDExLjM3N1YyNEgweiBNMTIuNjIzIDEyLjYyM0gyNFYyNEgxMi42MjN6IiBmaWxsPSIjZmZmIi8+PC9zdmc+&logoColor=white)](https://learn.microsoft.com/en-us/windows/win32/winsock/windows-sockets-start-page-2) | 系统 API | Windows TCP Socket，WebSocket 传输层 |
+| [![levibuildscript](https://img.shields.io/badge/levibuildscript-xmake-0094D9?style=flat-square&logo=lua&logoColor=white)](https://github.com/LiteLDev/LeviBuildScript) | 构建工具 | LeviLamina xmake 构建规则与打包脚本 |
+| [![hand-written](https://img.shields.io/badge/SHA1%20%2B%20Base64-hand--written-ab47bc?style=flat-square)]() | 手写实现 | WebSocket 握手密钥计算与帧编解码，零第三方依赖 |
 
 ---
 
