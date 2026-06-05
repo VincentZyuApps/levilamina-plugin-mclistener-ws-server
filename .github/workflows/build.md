@@ -2,6 +2,11 @@
 
 本仓库使用 GitHub Actions 进行持续集成和发布。当代码推送到 `main`/`master` 分支时，工作流会根据 commit 信息中的关键词自动执行。
 
+[![xmake](https://img.shields.io/badge/xmake-v2.9.7-0094D9?style=for-the-badge&logo=data:image/svg%2bxml;base64,...)](https://xmake.io)
+[![C++20](https://img.shields.io/badge/C++-20-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/20)
+[![MSVC](https://img.shields.io/badge/MSVC-2022-0078D4?style=for-the-badge&logo=visualstudio&logoColor=white)](...)
+[![GitHub CI](https://img.shields.io/github/actions/workflow/status/VincentZyuApps/levilamina-plugin-mclistener-ws-server/build.yml?style=for-the-badge&logo=githubactions&logoColor=white)](...)
+
 ## 📋 概述
 
 CI/CD 流水线由 **commit 信息中的关键词** 驱动。推送到主分支时，只需在 commit message 中包含对应关键词，GitHub Actions 会自动完成后续工作。
@@ -119,3 +124,14 @@ workflow ──┤
 dispatch   └─ 无输入版本 ──→ 使用 tooth.json 的版本
 
 ```
+
+## 🏗️ 构建环境
+| 包 | 版本 | 说明 |
+|:---|:---|:---|
+| [![xmake](https://img.shields.io/badge/xmake-2.9.x-0094D9?style=flat-square&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTE4LjkgNS4xTDEyIDEybDYuOSA2LjktMS40IDEuNEwxMiAxMy40bC02LjkgNi45LTEuNC0xLjRMMTAuNiAxMiAzLjcgNS4xbDEuNC0xLjRMMTIgMTAuNmw2LjktNi45IDEuNCAxLjR6IiBmaWxsPSIjZmZmIi8+PC9zdmc+)](https://xmake.io) | 2.9.x | 构建系统 |
+| [![MSVC](https://img.shields.io/badge/MSVC-2022-0078D4?style=flat-square&logo=cplusplus&logoColor=white)](https://learn.microsoft.com/en-us/cpp/) | 2022 | C++ 编译器 |
+| [![C++20](https://img.shields.io/badge/C++20-20-00599C?style=flat-square&logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/20) | C++20 | 语言标准 |
+| [![LeviLamina](https://img.shields.io/badge/LeviLamina-26.10.x-7FA973?style=flat-square&logo=cplusplus&logoColor=white&labelColor=2C5E3B)](https://github.com/LiteLDev/LeviLamina) | 26.10.x | 模组加载器 SDK |
+| [![LeviBuildScript](https://img.shields.io/badge/LeviBuildScript-v0.x-585858?style=flat-square)](https://github.com/LiteLDev/LeviBuildScript) | — | 构建脚本插件 |
+| [![nlohmann/json](https://img.shields.io/badge/nlohmann%2Fjson-v3.x-585858?style=flat-square&logo=json&logoColor=white)](https://github.com/nlohmann/json) | — | JSON 序列化 |
+| [![WinSock2](https://img.shields.io/badge/WinSock2-Ws2_32-585858?style=flat-square)](https://learn.microsoft.com/en-us/windows/win32/api/winsock2/) | — | 网络 API (Ws2_32) |
