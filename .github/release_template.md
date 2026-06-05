@@ -15,6 +15,7 @@
 
 ```bash
 lip install github.com/__REPO__
+lip install github.com/__REPO__@__VERSION__
 ```
 
 ### 📦 Manual Install
