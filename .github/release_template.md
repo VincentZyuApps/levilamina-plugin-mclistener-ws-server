@@ -31,8 +31,22 @@ lip update github.com/__REPO__@__VERSION__
    ├── mclistener-ws-server.dll
    └── mclistener-ws-server.pdb
    ```
-3. Copy `mclistener-ws-server/` folder to your server's `plugins/` directory
-4. Restart the server
+3. Copy `mclistener-ws-server/` into your server's `plugins/`:
+   ```
+   BDS Server Root/
+   ├── bedrock_server_mod.exe
+   ├── PreLoader.dll
+   ├── plugins/
+   │   ├── LeviLamina/               ← BDS mod loader (pre-installed)
+   │   │   ├── LeviLamina.dll
+   │   │   └── ...
+   │   └── mclistener-ws-server/     ← place here
+   │       ├── manifest.json
+   │       ├── mclistener-ws-server.dll
+   │       └── mclistener-ws-server.pdb
+   └── ...
+   ```
+4. Restart the server — `config/config.json` will be auto-generated on first run
 
 ---
 

@@ -32,7 +32,7 @@ A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock Server with
 ### Step 1: 安装服务端插件
 
 ```bash
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.12
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.13
 # 如果你的环境里 lip 解析 latest-version 正常，也可以尝试：
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 # 如果是已经安装，想要更新
@@ -126,26 +126,41 @@ lip update github.com/__REPO__@__VERSION__
 ```bash
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@<版本号>
 # 比如：
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.12
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.13
 # 如果你的环境里 latest-version 解析正常，也可以尝试让lip直接解析最新的版本号
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```
 
 ### 手动安装
 
-1. 从 [GitHub Releases](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases) 下载最新版本
-2. 解压后将 `mclistener-ws-server` 文件夹放入服务端 `plugins/` 目录
-3. 重启服务端
+1. 从 [GitHub Releases](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases) 下载 `mclistener-ws-server-server-windows-x64.zip`
 
-```
-BDS服务端/
-├── bedrock_server_mod.exe
-├── plugins/
-│   └── mclistener-ws-server/     ← 放入这里
-│       ├── mclistener-ws-server.dll
-│       └── manifest.json
-└── ...
-```
+2. 解压，得到目录：
+   ```
+   mclistener-ws-server/
+   ├── manifest.json
+   ├── mclistener-ws-server.dll
+   └── mclistener-ws-server.pdb
+   ```
+
+3. 将 `mclistener-ws-server/` 文件夹复制到服务端 `plugins/` 下
+   （文件夹名保持 **`mclistener-ws-server`**）：
+   ```
+   BDS服务端/
+   ├── bedrock_server_mod.exe
+   ├── PreLoader.dll
+   ├── plugins/
+   │   ├── LeviLamina/                  ← BDS 模组加载器（预装）
+   │   │   ├── LeviLamina.dll
+   │   │   └── ...
+   │   └── mclistener-ws-server/        ← 放入这里
+   │       ├── manifest.json
+   │       ├── mclistener-ws-server.dll
+   │       └── mclistener-ws-server.pdb
+   └── ...
+   ```
+
+4. 重启服务端 —— `config/config.json` 会在首次启动时自动生成
 
 ---
 

@@ -1,4 +1,5 @@
 # 开发编译指南
+> https://lamina.levimc.org/zh/
 
 ## 关于 LeviLamina 插件开发
 
