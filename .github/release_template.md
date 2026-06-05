@@ -14,8 +14,13 @@
 ### 📥 Install via lip
 
 ```bash
-lip install github.com/__REPO__
 lip install github.com/__REPO__@__VERSION__
+```
+
+If latest-version resolution works in your environment, you may also try:
+
+```bash
+lip install github.com/__REPO__
 ```
 
 ### 📦 Manual Install

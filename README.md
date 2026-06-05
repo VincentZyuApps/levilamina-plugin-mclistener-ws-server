@@ -24,6 +24,12 @@ A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock Server with
 ### Step 1: 安装服务端插件
 
 ```bash
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.3
+```
+
+如果你的环境里 latest-version 解析正常，也可以尝试：
+
+```bash
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```
 
@@ -62,7 +68,7 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 
 ### 基岩版服务器一侧
 
-支持 LeviLamina 1.8.x 的 Minecraft 基岩版专用服务器 (BDS)。
+支持 LeviLamina 26.10.x 的 Minecraft 基岩版专用服务器 (BDS)。
 
 > 如果你运行的是 **MCDReforged (Java版)**，请使用 [mcdr_listener_ws_server](https://github.com/VincentZyuApps/mcdr_listener_ws_server)（与本插件使用同一 WebSocket 协议，可共用 Koishi 客户端）。
 
@@ -103,12 +109,16 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 
 ### 前置要求
 
-- LeviLamina 1.8.x 或更高版本
+- LeviLamina 26.10.x
 - Minecraft 基岩版专用服务器 (BDS)
 
 ### 使用 lip 安装（推荐）
 
 ```bash
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@<版本号>
+# 比如：
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.4
+# 如果你的环境里 latest-version 解析正常，也可以尝试让lip直接解析最新的版本号
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```
 
