@@ -19,8 +19,10 @@ bin/
 *.obj
 *.ilk
 
-# Clangd cache
+# cache
 .cache/
+**/__pycache__/
+*.py[cod]
 
 # compile_commands.json (generated)
 compile_commands.json
