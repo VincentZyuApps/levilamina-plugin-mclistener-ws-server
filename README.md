@@ -327,5 +327,5 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 
 - [`koishi-plugin-mclistener-ws-client`](https://github.com/VincentZyuApps/koishi-plugin-mclistener-ws-client) — Koishi 群服互通客户端插件
 - [`mcdr_listener_ws_server`](https://github.com/VincentZyuApps/mcdr_listener_ws_server) — 本插件的 MCDReforged (Java版) 移植版
-- [Koishi](https://koishi.chat) — 跨平台聊天机器人框架
-- [LeviLamina](https://github.com/LiteLDev/LeviLamina) — 基岩版模组加载器
+- [`Koishi`](https://koishi.chat) — 跨平台聊天机器人框架
+- [`LeviLamina`](https://github.com/LiteLDev/LeviLamina) — 基岩版模组加载器

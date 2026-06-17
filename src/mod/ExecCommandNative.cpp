@@ -8,6 +8,7 @@
 #include "mc/server/commands/CommandOutputMessage.h"
 #include "mc/server/commands/ServerCommandOrigin.h"
 #include "mc/server/commands/CommandPermissionLevel.h"
+#include "mc/server/commands/CommandContext.h"
 #include "mc/server/ServerLevel.h"
 #include "mc/world/level/dimension/VanillaDimensions.h"
 
@@ -36,7 +37,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::MinecraftCommands,
     &::MinecraftCommands::handleOutput,
     void,
-    ::CommandOrigin const& origin,
+    ::CommandOrigin const& cmdOrigin,
     ::CommandOutput const& output
 ) {
     s_cmdInstance = this;
@@ -46,7 +47,7 @@ LL_TYPE_INSTANCE_HOOK(
             s_captureOutput += formatCmdMsg(msg);
         }
     }
-    origin(origin, output);
+    origin(cmdOrigin, output);
 }
 
 static ll::memory::HookRegistrar<CaptureOutputHook> captureOutputHookReg;
@@ -57,11 +58,12 @@ std::pair<bool, std::string> execCommandCppNative(const std::string& cmd) {
     auto& serverLevel = static_cast<::ServerLevel&>(*lv);
     s_capturing = true;
     s_captureOutput.clear();
-    s_cmdInstance->requestCommandExecution(
-        std::make_unique<::ServerCommandOrigin>(
-            "ws-native", serverLevel, ::CommandPermissionLevel::Owner, ::VanillaDimensions::Overworld()),
-        cmd, 29, false
-    );
+    ::CommandContext ctx;
+    ctx.mCommand = cmd;
+    ctx.mOrigin  = std::make_unique<::ServerCommandOrigin>(
+        "ws-native", serverLevel, ::CommandPermissionLevel::Owner, ::VanillaDimensions::Overworld());
+    ctx.mVersion = 29;
+    s_cmdInstance->requestCommandExecution(ctx, false);
     std::string out = s_captureOutput;
     s_capturing = false;
     return {true, out};
