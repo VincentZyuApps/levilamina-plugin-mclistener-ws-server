@@ -146,8 +146,12 @@ jobs:
           VERSION="${{ needs.check.outputs.version }}"
           mkdir -p release/mclistener-ws-server
           cp -r build-output/* release/mclistener-ws-server/
-          cd release
-          zip -r "../mclistener-ws-server-server-windows-x64.zip" .
+          cd release/mclistener-ws-server
+          mv mclistener-ws-server.dll "mclistener-ws-server-${VERSION}.dll"
+          mv mclistener-ws-server.pdb "mclistener-ws-server-${VERSION}.pdb"
+          jq --arg e "mclistener-ws-server-${VERSION}.dll" '.entry = $e' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+          cd ..
+          zip -r "../mclistener-ws-server-${VERSION}-server-windows-x64.zip" .
 
       - name: Delete existing release & tag (force fresh)
         env:
@@ -191,5 +195,5 @@ jobs:
             --title "mclistener-ws-server ${VERSION}" \
             --notes-file release_notes.md \
             --latest \
-            mclistener-ws-server-server-windows-x64.zip \
+            "mclistener-ws-server-${{ needs.check.outputs.version }}-server-windows-x64.zip" \
             tooth.json

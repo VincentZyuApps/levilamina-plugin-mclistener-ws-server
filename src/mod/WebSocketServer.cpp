@@ -189,13 +189,40 @@ void WebSocketServer::handleClient(SOCKET clientSocket) {
     mMod->getSelf().getLogger().debug("【-- WS handshake --】 Performing WebSocket handshake...");
     
     // 执行 WebSocket 握手
-    if (!performHandshake(clientSocket)) {
+    bool urlAuthPassed = false;
+    if (!performHandshake(clientSocket, urlAuthPassed)) {
         mMod->getSelf().getLogger().warn("【-- WS handshake --】 WebSocket handshake failed for socket {}", static_cast<int>(clientSocket));
         closesocket(clientSocket);
         return;
     }
     
     mMod->getSelf().getLogger().debug("【-- WS handshake --】 WebSocket handshake successful");
+
+    // Post-connection message auth（wsTokenMode == "message" 或 "any" 且 URL 未通过时）
+    {
+        const auto& wsToken = mMod->getConfig().wsToken;
+        const auto& mode    = mMod->getConfig().wsTokenMode;
+        bool needsMsgAuth   = !wsToken.empty()
+            && (mode == "message" || (mode == "any" && !urlAuthPassed));
+        if (needsMsgAuth) {
+            DWORD timeout = static_cast<DWORD>(mMod->getConfig().wsTokenAuthTimeoutMs);
+            setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+            std::string firstMsg = receiveFrame(clientSocket);
+            DWORD zero = 0;
+            setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&zero, sizeof(zero));
+            bool authOk = false;
+            try {
+                auto j = nlohmann::json::parse(firstMsg);
+                authOk = (j.value("type", "") == "auth" && j.value("token", "") == wsToken);
+            } catch (...) {}
+            if (!authOk) {
+                mMod->getSelf().getLogger().warn("【-- WS auth --】 Message auth failed or timed out, rejecting socket {}", static_cast<int>(clientSocket));
+                closesocket(clientSocket);
+                return;
+            }
+            mMod->getSelf().getLogger().debug("【-- WS auth --】 Message auth passed");
+        }
+    }
 
     // 添加到客户端列表
     {
@@ -238,7 +265,8 @@ void WebSocketServer::handleClient(SOCKET clientSocket) {
     mMod->getSelf().getLogger().info("【-- WS client --】 WebSocket client disconnected, remaining clients: {}", mClients.size());
 }
 
-bool WebSocketServer::performHandshake(SOCKET clientSocket) {
+bool WebSocketServer::performHandshake(SOCKET clientSocket, bool& urlAuthPassed) {
+    urlAuthPassed = false;
     mMod->getSelf().getLogger().trace("【-- WS handshake --】 Reading handshake request...");
     
     char buffer[4096];
@@ -262,9 +290,13 @@ bool WebSocketServer::performHandshake(SOCKET clientSocket) {
     // ── Token 认证 ──────────────────────────────────────
     {
         const std::string& wsToken = mMod->getConfig().wsToken;
-        if (!wsToken.empty()) {
+        const std::string& mode    = mMod->getConfig().wsTokenMode;
+
+        if (wsToken.empty() || mode == "disabled") {
+            urlAuthPassed = true; // 不需要校验
+        } else if (mode != "message") {
+            // "param" 或 "any"：尝试从 URL 提取 token
             std::string token;
-            // 解析请求行: "GET /path?token=xxx HTTP/1.1"
             size_t pathStart = request.find(' ') + 1;
             size_t pathEnd   = request.find(' ', pathStart);
             if (pathStart != std::string::npos && pathEnd != std::string::npos) {
@@ -283,7 +315,11 @@ bool WebSocketServer::performHandshake(SOCKET clientSocket) {
                 }
             }
 
-            if (token != wsToken) {
+            if (!token.empty() && token == wsToken) {
+                urlAuthPassed = true;
+                mMod->getSelf().getLogger().debug("【-- WS auth --】 URL param token authentication passed");
+            } else if (mode == "param" || (!token.empty() && token != wsToken)) {
+                // "param" 模式必须有 URL token，或者提供了错误的 token（任何模式都拒绝）
                 mMod->getSelf().getLogger().warn("【-- WS auth --】 Token from client '{}' does not match configured token, rejecting", token);
                 std::string reject =
                     "HTTP/1.1 401 Unauthorized\r\n"
@@ -294,8 +330,9 @@ bool WebSocketServer::performHandshake(SOCKET clientSocket) {
                 send(clientSocket, reject.c_str(), static_cast<int>(reject.length()), 0);
                 return false;
             }
-            mMod->getSelf().getLogger().debug("【-- WS auth --】 Token authentication passed");
+            // mode == "any" && token.empty()：urlAuthPassed=false，后续 message auth 处理
         }
+        // mode == "message"：urlAuthPassed=false，后续 message auth 处理
     }
 
     // 查找 Sec-WebSocket-Key

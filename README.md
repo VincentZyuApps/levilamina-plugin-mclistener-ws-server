@@ -44,7 +44,20 @@ lip update github.com/__REPO__@__VERSION__
 
 或手动下载 Release 解压到 `plugins/` 目录后重启服务端。
 
-### Step 2: 配置 Koishi 客户端
+### Step 2:（可选）安装 exec-relay.js 实现远程指令执行
+
+> 跳过此步也不影响基础群服互通功能
+
+```bash
+# 安装 LegacyScriptEngine QuickJS 引擎
+lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
+# 将 js/exec-relay.js 放入 plugins/ 目录，编辑顶部 RELAY_PORT / RELAY_TOKEN 与 config.json 一致
+# 在 config.json 中设置
+#    "execCommandMode": "js-relay"
+# 重启服务器两次（LSE 第一次迁移文件，第二次加载）
+```
+
+### Step 3: 配置 Koishi 客户端
 
 在 Koishi 端安装 [`koishi-plugin-mclistener-ws-client`](https://github.com/VincentZyuApps/koishi-plugin-mclistener-ws-client)，配置：
 
@@ -52,10 +65,11 @@ lip update github.com/__REPO__@__VERSION__
 - `wsToken`: 与服务端 `ws_token` 一致（如不校验可不填）
 - `sourcePlatformList` / `targetPlatformChannelList`: 你的群/频道
 
-### Step 3: 验证互通
+### Step 4: 验证互通
 
 - 🎮 游戏里说话 → 群里应收到玩家聊天消息
 - 💬 群里发消息 → 游戏内应显示 `[群名] (群号) 昵称: 消息`
+- 🖥️（可选）`mcws.exec list` → 返回在线玩家列表
 
 ---
 
@@ -107,6 +121,14 @@ lip update github.com/__REPO__@__VERSION__
 ##### **QQ（OneBot v11）**: ![](docs/images/preview-onebotv11-chat-platform-to-mc-server.png)
 ##### **Discord**: ![](docs/images/preview-discord-chat-platform-to-mc-server.png)
 
+### 🔧 远程指令执行（js-relay）
+
+通过 LSE JS 伴侣插件 `exec-relay.js`，聊天平台可向服务器发送 Minecraft 指令并获取执行结果：
+
+##### **QQ（OneBot v11）**: ![](docs/images/preview-exec-rcon-command-at-chat-platform.png)
+
+> 需要同时开启 Koishi 侧 `enableExecCommand` 和服务端 `execCommandMode: "js-relay"`
+
 ### ⚙️ 灵活的消息捕获方式
 
 | 模式 | 说明 | 适用场景 |
@@ -136,9 +158,11 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 
 ### 手动安装
 
-1. 从 [GitHub Releases](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases) 下载 `mclistener-ws-server-server-windows-x64.zip`
+- **1.下载**
+从 [GitHub Releases](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases) 下载 `mclistener-ws-server-server-windows-x64.zip`
 
-2. 解压，得到目录：
+- **2.解压**
+解压，得到目录：
    ```
    mclistener-ws-server/
    ├── manifest.json
@@ -146,7 +170,8 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
    └── mclistener-ws-server.pdb
    ```
 
-3. 将 `mclistener-ws-server/` 文件夹复制到服务端 `plugins/` 下
+- **3.复制，并验证目录结构**
+将 `mclistener-ws-server/` 文件夹复制到服务端 `plugins/` 下
    （文件夹名保持 **`mclistener-ws-server`**）：
    ```
    BDS服务端/
@@ -156,14 +181,48 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
    │   ├── LeviLamina/                  ← BDS 模组加载器（预装）
    │   │   ├── LeviLamina.dll
    │   │   └── ...
-   │   └── mclistener-ws-server/        ← 放入这里
+   │   └── mclistener-ws-server/        ← 把文件夹复制放入这里 
    │       ├── manifest.json
    │       ├── mclistener-ws-server.dll
-   │       └── mclistener-ws-server.pdb
+   │       ├── mclistener-ws-server.pdb
+   │       └── config/                  ← 后续插件第一次加载会自动生成的 
+   │           └── config.json
    └── ...
    ```
 
-4. 重启服务端 —— `config/config.json` 会在首次启动时自动生成
+- **4. 重启服务端**
+`config/config.json` 会在首次启动时自动生成在插件目录下 ↑
+
+#### 安装 exec-relay.js（可选，远程指令执行）
+
+> 需要 [LegacyScriptEngine](https://github.com/LiteLDev/LegacyScriptEngine) QuickJS 引擎
+
+- **(1). 安装 LSE QuickJS 引擎**
+    ```bash
+    lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
+    ```
+
+- **(2). 放入js插件文件**
+    将 `exec-relay.js` 放入 `plugins/` 目录从 [Releases](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/releases) 下载，或直接从 [`js/exec-relay.js`](js/exec-relay.js) 复制。
+
+- **(3). 编辑js文件内配置**
+    编辑js文件顶部的 `RELAY_PORT` / `RELAY_TOKEN`变量，使其与 C++ 插件 `config.json` 保持一致
+
+- **(4). 在 `config.json` 中启用**：
+    ```json
+    "execCommandMode": "js-relay"
+    ```
+
+- **(5). 重启服务器两次**
+    （LSE 第一次启动会迁移文件，第二次正式加载）
+    这是第一次重启的日志:
+    ```powershell
+    03:56:26.281 INFO [LeviLamina] 正在加载 legacy-script-engine-quickjs v0.18.2
+    03:56:27.019 INFO [legacy-script-engine-quickjs] 正在迁移旧版插件...
+    03:56:27.019 INFO [legacy-script-engine-quickjs] 正在迁移位于 ./plugins/exec-relay.js 的旧版插件
+    03:56:27.020 WARN [legacy-script-engine-quickjs] 旧版插件已迁移，请重启服务器以加载它们！
+    ```
+
 
 ---
 
@@ -183,7 +242,8 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
     "enablePlayerChatBroadcast": true,
     "enableReceiveGroupMessage": true,
     "chatCaptureMode": "event",
-    "groupMessageFormat": "§6§l[{group_name}]§r §b({group_id})§r §a§o{nickname}§r§f: {message}"
+    "groupMessageFormat": "§6§l[{group_name}]§r §b({group_id})§r §a§o{nickname}§r§f: {message}",
+    "execCommandMode": "disabled"
 }
 ```
 
@@ -200,6 +260,7 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 | `enableReceiveGroupMessage` | bool | `true` | 接收群消息并转发到游戏内 |
 | `chatCaptureMode` | string | `"event"` | 聊天捕获方式 |
 | `groupMessageFormat` | string | *见下方* | 群消息在游戏内的显示格式 |
+| `execCommandMode` | string | `"disabled"` | 远程指令执行模式：`"disabled"` / `"js-relay"` / `"cpp-native"` |
 
 > 详细配置说明见 [`docs/prod.md`](docs/prod.md)
 
@@ -235,6 +296,17 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
     "nickname": "Alice",
     "message": "大家好"
 }
+```
+
+**远程指令执行请求**（需 `execCommandMode: "js-relay"`）
+```json
+{"type": "execute_command", "request_id": "abc123", "command": "list"}
+```
+
+### 服务端 → 客户端（指令结果）
+
+```json
+{"type": "command_result", "request_id": "abc123", "command": "list", "ok": true, "output": "There are 1/10 players online: ..."}
 ```
 
 ---

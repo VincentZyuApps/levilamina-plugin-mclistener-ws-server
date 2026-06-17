@@ -61,7 +61,7 @@ private:
     void handleClient(SOCKET clientSocket);
 
     // WebSocket 握手
-    bool performHandshake(SOCKET clientSocket);
+    bool performHandshake(SOCKET clientSocket, bool& urlAuthPassed);
 
     // 发送 WebSocket 帧
     bool sendFrame(SOCKET clientSocket, const std::string& message);

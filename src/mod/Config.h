@@ -20,7 +20,17 @@ struct Config {
     
     // ── 🔑 WebSocket Token 认证 ─────────────────────────
     // 客户端连接时需要提供的 Token（空字符串表示不校验）
-    std::string wsToken = "";
+    std::string wsToken = "test12345";
+
+    // ── 🔑 Token 校验模式 ───────────────────────────────
+    // "any"      — URL ?token= 或 连接后 auth 消息均可（默认，向后兼容）
+    // "param"    — 仅 URL ?token= 查询参数
+    // "message"  — 仅连接后发 {"type":"auth","token":"..."} 消息（适合 js-relay）
+    // "disabled" — 关闭 token 校验
+    std::string wsTokenMode = "any";
+
+    // post-connection message 鉴权超时（ms），超时未收到有效 auth 消息则断开
+    int wsTokenAuthTimeoutMs = 5555;
     
     // ── 🎮 功能开关 ─────────────────────────────────────
     // ✅ 玩家加入服务器事件 广播通知

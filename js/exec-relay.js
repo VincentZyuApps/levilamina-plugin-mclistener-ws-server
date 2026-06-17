@@ -6,12 +6,13 @@
 // 需要：C++ 插件 config.json 中 execCommandMode 设为 "js-relay"
 
 // ── 配置（需与 C++ 插件 config.json 中的 port / wsToken 保持一致）──
-const RELAY_PORT  = 60605;  // 对应 C++ 插件的 port
-const RELAY_TOKEN = "";     // 对应 C++ 插件的 wsToken，空字符串表示无 token
+const RELAY_IP = "127.0.0.1"        // 连接的 WS服务端所在的ip
+const RELAY_PORT  = 60605;          // 对应 C++ 插件的 port
+const RELAY_TOKEN = "test12345";    // 对应 C++ 插件的 wsToken，空字符串表示无 token
 
 const WS_URL = RELAY_TOKEN
-    ? `ws://127.0.0.1:${RELAY_PORT}?token=${RELAY_TOKEN}`
-    : `ws://127.0.0.1:${RELAY_PORT}`;
+    ? `ws://${RELAY_IP}:${RELAY_PORT}?token=${RELAY_TOKEN}`
+    : `ws://${RELAY_IP}:${RELAY_PORT}`;
 
 const RECONNECT_DELAY_MS = 5000;
 
@@ -24,7 +25,7 @@ function connect() {
         let data;
         try { data = JSON.parse(msg); } catch { return; }
 
-        if (data.type !== 'execute_command' || !data.command) return;
+        if (data.type !== 'external_command_to_server' || !data.command) return;
 
         const result = mc.runcmdEx(data.command);
         ws.send(JSON.stringify({
@@ -48,6 +49,9 @@ function connect() {
     ws.connectAsync(WS_URL, (success) => {
         if (success) {
             log('[exec-relay] connected to ' + WS_URL);
+            if (RELAY_TOKEN) {
+                ws.send(JSON.stringify({ type: 'auth', token: RELAY_TOKEN }));
+            }
         } else {
             log('[exec-relay] connect failed, retrying...');
             setTimeout(connect, RECONNECT_DELAY_MS);
