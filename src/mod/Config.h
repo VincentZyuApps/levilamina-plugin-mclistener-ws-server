@@ -23,16 +23,16 @@ struct Config {
     std::string wsToken = "";
     
     // ── 🎮 功能开关 ─────────────────────────────────────
-    // ✅ 玩家加入服务器时广播通知
+    // ✅ 玩家加入服务器事件 广播通知
     bool enablePlayerJoinBroadcast = true;
     
-    // ✅ 玩家离开服务器时广播通知
+    // ✅ 玩家离开服务器事件 广播通知
     bool enablePlayerLeaveBroadcast = true;
     
-    // ✅ 玩家聊天消息转发到 WebSocket 客户端
+    // ✅ 玩家聊天时间 广播通知
     bool enablePlayerChatBroadcast = true;
     
-    // ✅ 接收群聊消息并广播到游戏内
+    // ✅ 是否 接收聊天平台消息 并广播到游戏内
     bool enableReceiveGroupMessage = true;
     
     // ── ⚙️ 聊天捕获方式 ─────────────────────────────────
@@ -48,6 +48,12 @@ struct Config {
     //   {nickname}   — 发送者昵称
     //   {message}    — 消息内容
     std::string groupMessageFormat = "§6§l[{group_name}]§r §b({group_id})§r §a§o{nickname}§r§f: {message}";
+
+    // ── 🔧 远程指令执行 ─────────────────────────────────────
+    // "disabled"   — 关闭远程指令执行
+    // "js-relay"   — LSE JS 插件中继（配合 js/exec-relay.js）
+    // "cpp-native" — C++ 直接调用 BDS API（TODO）
+    std::string execCommandMode = "disabled";
 };
 
 } // namespace mclistener_ws_server

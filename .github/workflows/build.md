@@ -4,8 +4,8 @@
 
 [![xmake](https://img.shields.io/badge/xmake-v2.9.7-0094D9?style=for-the-badge&logo=data:image/svg%2bxml;base64,...)](https://xmake.io)
 [![C++20](https://img.shields.io/badge/C++-20-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/20)
-[![MSVC](https://img.shields.io/badge/MSVC-2022-0078D4?style=for-the-badge&logo=visualstudio&logoColor=white)](...)
-[![GitHub CI](https://img.shields.io/github/actions/workflow/status/VincentZyuApps/levilamina-plugin-mclistener-ws-server/build.yml?style=for-the-badge&logo=githubactions&logoColor=white)](...)
+[![MSVC](https://img.shields.io/badge/MSVC-2022-0078D4?style=for-the-badge&logo=visualstudio&logoColor=white)](https://learn.microsoft.com/en-us/cpp/)
+[![GitHub CI](https://img.shields.io/github/actions/workflow/status/VincentZyuApps/levilamina-plugin-mclistener-ws-server/build.yml?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server/actions/workflows/build.yml)
 
 ## 📋 概述
 
@@ -48,26 +48,26 @@ check ──→ build ──→ release
 ```mermaid
 flowchart TB
     subgraph check["check"]
-        C1[读取 tooth.json 版本号]
-        C2[解析 commit 关键词]
+        C1["读取 tooth.json 版本号"]
+        C2["解析 commit 关键词"]
     end
 
     subgraph build["build"]
-        B1[编译 (xmake)]
-        B2[上传 artifact]
+        B1["编译 (xmake)"]
+        B2["上传 artifact"]
     end
 
     subgraph release["release"]
-        R1[下载 artifact]
-        R2[准备 zip 包]
-        R3[删除旧 release/tag]
-        R4[生成 Release Notes]
-        R5[创建 GitHub Release]
+        R1["下载 artifact"]
+        R2["准备 zip 包"]
+        R3["删除旧 release/tag"]
+        R4["生成 Release Notes"]
+        R5["创建 GitHub Release"]
     end
 
     C1 --> C2
-    C2 -->|build action / build release| B1
-    C2 -->|build release only| R3
+    C2 -->|"build action / build release"| B1
+    C2 -->|"build release only"| R3
     B1 --> B2
     B2 --> R1
     R1 --> R2

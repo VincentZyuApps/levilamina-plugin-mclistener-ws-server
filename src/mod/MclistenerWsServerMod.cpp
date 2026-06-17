@@ -225,6 +225,12 @@ bool MclistenerWsServerMod::enable() {
                     }
 
                     getSelf().getLogger().info("【-- Group -> Server --】 [{}] {}: {}", groupName, nickname, content);
+                } else if ((type == "execute_command" || type == "command_result")
+                           && mConfig.execCommandMode == "js-relay") {
+                    if (auto* ws = mWsServer.get()) {
+                        ws->broadcast(message);
+                        getSelf().getLogger().debug("【-- Relay --】 Relayed {} message", type);
+                    }
                 } else {
                     getSelf().getLogger().debug("【-- WS --】 Ignoring message with type: {}", type);
                 }
