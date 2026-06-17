@@ -1,6 +1,7 @@
 #include "mod/WebSocketServer.h"
 #include "mod/MclistenerWsServerMod.h"
 
+#include <nlohmann/json.hpp>
 #include <sstream>
 #include <algorithm>
 #include <cstring>
