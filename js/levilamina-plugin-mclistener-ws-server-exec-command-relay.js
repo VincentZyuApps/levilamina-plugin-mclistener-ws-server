@@ -1,4 +1,4 @@
-// exec-relay.js — LSE JS 插件
+// levilamina-plugin-mclistener-ws-server-exec-command-relay.js — LSE JS 插件
 // 连回 C++ WS 服务端，处理 execute_command → mc.runcmdEx() → 返回 command_result
 //
 // 部署：将此文件放到 LeviLamina 服务器 plugins/ 目录

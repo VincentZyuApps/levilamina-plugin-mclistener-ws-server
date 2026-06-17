@@ -12,24 +12,19 @@
 #include "mc/server/commands/CommandContext.h"
 #include "mc/server/ServerLevel.h"
 #include "mc/world/level/dimension/VanillaDimensions.h"
+#include "mc/locale/I18n.h"
+#include "mc/locale/Localization.h"
+#include "mc/world/Minecraft.h"
 
 namespace mclistener_ws_server {
 
-static ::MinecraftCommands*     s_cmdInstance  = nullptr;
 static thread_local std::string s_captureOutput;
-static thread_local bool        s_capturing    = false;
+static thread_local bool        s_capturing = false;
 
-static std::string formatCmdMsg(const ::CommandOutputMessage& msg) {
-    std::string s = msg.mMessageId;
-    for (size_t i = 0; i < msg.mParams.size(); ++i) {
-        std::string ph = "%" + std::to_string(i + 1);
-        size_t pos = 0;
-        while ((pos = s.find(ph, pos)) != std::string::npos) {
-            s.replace(pos, ph.length(), msg.mParams[i]);
-            pos += msg.mParams[i].length();
-        }
-    }
-    return s;
+static std::string translateCmdMsg(const ::CommandOutputMessage& msg) {
+    static std::shared_ptr<const ::Localization> loc =
+        ::getI18n().getLocaleFor(::getI18n().getCurrentLanguage()->mCode);
+    return ::getI18n().get(msg.mMessageId, msg.mParams, loc);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -41,11 +36,10 @@ LL_TYPE_INSTANCE_HOOK(
     ::CommandOrigin const& cmdOrigin,
     ::CommandOutput const& output
 ) {
-    s_cmdInstance = this;
     if (s_capturing) {
         for (auto const& msg : output.mMessages) {
             if (!s_captureOutput.empty()) s_captureOutput += '\n';
-            s_captureOutput += formatCmdMsg(msg);
+            s_captureOutput += translateCmdMsg(msg);
         }
     }
     origin(cmdOrigin, output);
@@ -54,17 +48,22 @@ LL_TYPE_INSTANCE_HOOK(
 static ll::memory::HookRegistrar<CaptureOutputHook> captureOutputHookReg;
 
 std::pair<bool, std::string> execCommandCppNative(const std::string& cmd) {
+    auto mc = ll::service::getMinecraft();
     auto lv = ll::service::getLevel();
-    if (!s_cmdInstance || !lv) return {false, "server not ready"};
+    if (!mc || !mc->mCommands || !lv) return {false, "server not ready"};
+
     auto& serverLevel = static_cast<::ServerLevel&>(*lv);
     s_capturing = true;
     s_captureOutput.clear();
+
     ::CommandContext ctx;
     ctx.mCommand = cmd;
     ctx.mOrigin  = std::make_unique<::ServerCommandOrigin>(
         "ws-native", serverLevel, ::CommandPermissionLevel::Owner, ::VanillaDimensions::Overworld());
     ctx.mVersion = 29;
-    s_cmdInstance->requestCommandExecution(ctx, false);
+
+    mc->mCommands->requestCommandExecution(ctx, false);
+
     std::string out = s_captureOutput;
     s_capturing = false;
     return {true, out};
