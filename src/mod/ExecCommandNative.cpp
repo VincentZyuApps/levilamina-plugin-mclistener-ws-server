@@ -4,6 +4,7 @@
 #include "ll/api/service/Bedrock.h"
 
 #include "mc/server/commands/MinecraftCommands.h"
+#include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/server/commands/CommandOutput.h"
 #include "mc/server/commands/CommandOutputMessage.h"
 #include "mc/server/commands/ServerCommandOrigin.h"
