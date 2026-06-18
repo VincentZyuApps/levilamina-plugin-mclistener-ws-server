@@ -170,9 +170,9 @@ jobs:
           PREV_TAG=$(git tag --sort=-v:refname | grep -v "^v${VERSION}$" | head -1)
 
           if [ -n "$PREV_TAG" ]; then
-            COMMIT_LOG=$(git log "${PREV_TAG}..HEAD" --format="%B" --reverse | sed 's/^/> /')
+            COMMIT_LOG=$(git log "${PREV_TAG}..HEAD" --format="> %h - %ai - %an - %s" --reverse)
           else
-            COMMIT_LOG=$(git log --format="%B" --reverse | sed 's/^/> /')
+            COMMIT_LOG=$(git log --format="> %h - %ai - %an - %s" --reverse)
           fi
 
           export REPO VERSION COMMIT_LOG

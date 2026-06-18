@@ -35,7 +35,7 @@
 ### Step 1: 安装服务端插件
 
 ```bash
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.24
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.26
 # 如果你的环境里 lip 解析 latest-version 正常，也可以尝试：
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 # 如果是已经安装，想要更新
@@ -110,6 +110,14 @@ lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
 - 玩家加入服务器时自动广播（可配置开关）
 - 玩家离开服务器时自动广播（可配置开关）
 
+### ⚙️ MC服务端灵活的消息捕获方式
+
+| 模式 | 说明 | 适用场景 |
+|------|------|----------|
+| `event` | 使用 LeviLamina PlayerChatEvent（默认） | 与其他插件兼容性最好 |
+| `hook_packet` | 直接 Hook TextPacket 处理函数 | 被 GwChat 等插件拦截事件时使用 |
+| `both` | 同时使用两种方式 | 调试用，可能导致重复消息 |
+
 ### 💬 聊天消息双向转发
 
 **MC 服务器 → 聊天平台**
@@ -129,14 +137,6 @@ lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
 
 > 需要同时开启 Koishi 侧 `enableExecCommand` 和服务端 `execCommandMode: "js-relay"`
 
-### ⚙️ 灵活的消息捕获方式
-
-| 模式 | 说明 | 适用场景 |
-|------|------|----------|
-| `event` | 使用 LeviLamina PlayerChatEvent（默认） | 与其他插件兼容性最好 |
-| `hook_packet` | 直接 Hook TextPacket 处理函数 | 被 GwChat 等插件拦截事件时使用 |
-| `both` | 同时使用两种方式 | 调试用，可能导致重复消息 |
-
 ---
 
 ## 📦 安装
@@ -151,7 +151,7 @@ lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
 ```bash
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@<版本号>
 # 比如：
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.24
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.26
 # 如果你的环境里 latest-version 解析正常，也可以尝试让lip直接解析最新的版本号
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```
@@ -235,8 +235,10 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
     "version": 1,
     "logLevel": "info",
     "host": "0.0.0.0",
-    "port": 60201,
-    "wsToken": "",
+    "port": 60605,
+    "wsToken": "test12345",
+    "wsTokenMode": "any",
+    "wsTokenAuthTimeoutMs": 5555,
     "enablePlayerJoinBroadcast": true,
     "enablePlayerLeaveBroadcast": true,
     "enablePlayerChatBroadcast": true,
@@ -250,17 +252,27 @@ lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
 | `version` | int | `1` | 配置文件版本，请勿修改 |
-| `logLevel` | string | `"info"` | 日志级别 |
+| `logLevel` | string | `"info"` | 日志级别：`silent` \| `fatal` \| `error` \| `warn` \| `info` \| `debug` \| `trace` |
 | `host` | string | `"0.0.0.0"` | WebSocket 监听地址 |
-| `port` | int | `60201` | WebSocket 监听端口 |
-| `wsToken` | string | `""` | WebSocket 连接 Token（空字符串表示不校验） |
+| `port` | int | `60605` | WebSocket 监听端口 |
+| `wsToken` | string | `"test12345"` | WebSocket 连接 Token（空字符串表示不校验） |
+| `wsTokenMode` | string | `"any"` | Token 校验模式：`any`(URL或消息均可) \| `param`(仅URL参数) \| `message`(仅auth消息) \| `disabled`(关闭校验) |
+| `wsTokenAuthTimeoutMs` | int | `5555` | post-connection auth 消息鉴权超时（毫秒） |
 | `enablePlayerJoinBroadcast` | bool | `true` | 广播玩家加入事件 |
 | `enablePlayerLeaveBroadcast` | bool | `true` | 广播玩家离开事件 |
 | `enablePlayerChatBroadcast` | bool | `true` | 广播玩家聊天事件 |
 | `enableReceiveGroupMessage` | bool | `true` | 接收群消息并转发到游戏内 |
-| `chatCaptureMode` | string | `"event"` | 聊天捕获方式 |
+| `chatCaptureMode` | string | `"event"` | 聊天捕获方式：见下方「消息捕获模式」 |
 | `groupMessageFormat` | string | *见下方* | 群消息在游戏内的显示格式 |
-| `execCommandMode` | string | `"disabled"` | 远程指令执行模式：`"disabled"` / `"js-relay"` / `"cpp-native"` |
+| `execCommandMode` | string | `"disabled"` | 远程指令执行模式：`disabled`(关闭) \| `js-relay`(JS中继) \| `cpp-native`(C++直接执行) \| `both`(双路径并行,容错) |
+
+### 💬 消息捕获模式（chatCaptureMode）
+
+| 模式 | 说明 | 适用场景 |
+|------|------|----------|
+| `event` | 使用 LeviLamina `PlayerChatEvent`（默认） | 与其他插件兼容性最好 |
+| `hook_packet` | 直接 Hook `TextPacket` 处理函数 | 被 GwChat 等插件拦截事件时使用 |
+| `both` | 同时使用两种方式 | 调试用，可能导致重复消息 |
 
 > 详细配置说明见 [`docs/prod.md`](docs/prod.md)
 

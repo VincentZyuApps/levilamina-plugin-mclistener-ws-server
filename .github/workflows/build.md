@@ -80,7 +80,7 @@ flowchart TB
 
 ```json
 {
-    "version": "0.6.3-alpha.24"
+    "version": "0.6.3-alpha.26"
 }
 ```
 

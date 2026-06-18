@@ -48,28 +48,42 @@ void handleWsMessage(
             }
             logger.info("【-- Group -> Server --】 [{}] {}: {}", groupName, nickname, content);
 
-        } else if ((type == "external_command_to_server" || type == "command_result")
-                   && config.execCommandMode == "js-relay") {
+        } else if (type == "external_command_to_server") {
+            auto mode = config.execCommandMode;
+            bool doRelay  = (mode == "js-relay" || mode == "both");
+            bool doNative = (mode == "cpp-native" || mode == "both");
+
+            if (doRelay && ws) {
+                ws->broadcast(message);
+                logger.debug("【-- Relay --】 Relayed external_command_to_server");
+            }
+
+            if (doNative) {
+                std::string cmd   = json.value("command", "");
+                std::string reqId = json.value("request_id", "");
+                auto [ok, out] = execCommandCppNative(cmd);
+                nlohmann::json res;
+                res["type"]       = "command_result";
+                res["request_id"] = reqId;
+                res["command"]    = cmd;
+                res["ok"]         = ok;
+                res["result"]     = out;
+                if (ws) ws->broadcast(res.dump());
+                logger.info("【-- CppNative --】 exec '{}': {}", cmd, out);
+            }
+
+            if (!doRelay && !doNative) {
+                logger.debug("【-- WS --】 execCommandMode is disabled, ignoring command");
+            }
+
+        } else if (type == "command_result" && (config.execCommandMode == "js-relay" || config.execCommandMode == "both")) {
             if (ws) {
                 ws->broadcast(message);
-                logger.debug("【-- Relay --】 Relayed {} message", type);
+                logger.debug("【-- Relay --】 Relayed command_result");
             }
 
         } else if (type == "auth") {
             logger.debug("【-- WS auth --】 Received post-handshake auth message (ignored)");
-
-        } else if (type == "external_command_to_server" && config.execCommandMode == "cpp-native") {
-            std::string cmd   = json.value("command", "");
-            std::string reqId = json.value("request_id", "");
-            auto [ok, out] = execCommandCppNative(cmd);
-            nlohmann::json res;
-            res["type"]       = "command_result";
-            res["request_id"] = reqId;
-            res["command"]    = cmd;
-            res["ok"]         = ok;
-            res["result"]     = out;
-            if (ws) ws->broadcast(res.dump());
-            logger.info("【-- CppNative --】 exec '{}': {}", cmd, out);
 
         } else {
             logger.debug("【-- WS --】 Ignoring message with type: {}", type);

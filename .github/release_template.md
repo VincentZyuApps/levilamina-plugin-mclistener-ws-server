@@ -9,7 +9,7 @@
 
 | File | Description |
 |------|-------------|
-| [📦 `mclistener-ws-server-server-windows-x64.zip`](__BASE_URL__/mclistener-ws-server-server-windows-x64.zip) | Plugin package for LeviLamina |
+| [📦 `mclistener-ws-server-__VERSION__-server-windows-x64.zip`](__BASE_URL__/mclistener-ws-server-__VERSION__-server-windows-x64.zip) | Plugin package for LeviLamina |
 
 ### 📥 Install via lip
 
@@ -23,7 +23,7 @@ lip update github.com/__REPO__@__VERSION__
 
 ### 📦 Manual Install
 
-1. Download `mclistener-ws-server-server-windows-x64.zip`
+1. Download `mclistener-ws-server-__VERSION__-server-windows-x64.zip`
 2. Unzip, you'll get:
    ```
    mclistener-ws-server/

@@ -37,13 +37,13 @@ struct Config {
     std::string _comment_enableReceiveGroupMessage = "📥 是否接收聊天平台消息并转发到游戏内";
     bool enableReceiveGroupMessage = true;
 
-    std::string _comment_chatCaptureMode = "⚙️ 聊天捕获方式：event(事件系统) | hook_packet(数据包钩子) | both(两者同时)";
+    std::string _comment_chatCaptureMode = "⚙️ 聊天捕获方式：event(PlayerChatEvent,兼容最好) | hook_packet(直接Hook TextPacket,被GwChat等拦截事件时用) | both(调试用,可能重复)";
     std::string chatCaptureMode = "event";
 
     std::string _comment_groupMessageFormat = "✏️ 群消息在游戏内的显示格式，占位符：{group_name} {group_id} {nickname} {message}";
     std::string groupMessageFormat = "§6§l[{group_name}]§r §b({group_id})§r §a§o{nickname}§r§f: {message}";
 
-    std::string _comment_execCommandMode = "🔧 远程指令执行模式：disabled(关闭) | js-relay(JS插件中继) | cpp-native(C++直接执行)";
+    std::string _comment_execCommandMode = "🔧 远程指令执行模式：disabled(关闭) | js-relay(JS插件中继) | cpp-native(C++直接执行) | both(JS+C++双路径,任一返回即成功,容错)";
     std::string execCommandMode = "disabled";
 };
 
