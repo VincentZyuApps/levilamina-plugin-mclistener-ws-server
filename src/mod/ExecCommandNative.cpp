@@ -31,7 +31,7 @@ std::pair<bool, std::string> execCommandCppNative(const std::string& cmd) {
     auto command = mc->mCommands->compileCommand(
         cmd,
         origin,
-        static_cast<::CurrentCmdVersion>(::CommandVersion::CurrentVersion()),
+        ::CurrentCmdVersion::Latest,
         [&](std::string const& err) { compileErr.append(err).append("\n"); }
     );
 
