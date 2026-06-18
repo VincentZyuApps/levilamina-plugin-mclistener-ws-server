@@ -15,6 +15,7 @@ FILES = {
     "tooth.json": "exact",
     "README.md": "regex",
     ".github/workflows/build.md": "regex",
+    "js/mclistener-ws-server-exec-command-relay.js": "regex",
 }
 TOOTH = os.path.join(ROOT, "tooth.json")
 

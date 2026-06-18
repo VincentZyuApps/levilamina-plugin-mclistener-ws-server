@@ -67,7 +67,7 @@ void handleWsMessage(
             res["request_id"] = reqId;
             res["command"]    = cmd;
             res["ok"]         = ok;
-            res["output"]     = out;
+            res["result"]     = out;
             if (ws) ws->broadcast(res.dump());
             logger.info("【-- CppNative --】 exec '{}': {}", cmd, out);
 
