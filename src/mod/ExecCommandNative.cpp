@@ -12,6 +12,8 @@
 #include "mc/server/commands/CurrentCmdVersion.h"
 #include "mc/server/ServerLevel.h"
 #include "mc/world/level/dimension/VanillaDimensions.h"
+#include "mc/deps/core/string/HashedString.h"
+#include "mc/server/commands/Command.h"
 #include "mc/locale/I18n.h"
 #include "mc/locale/Localization.h"
 #include "mc/world/Minecraft.h"
@@ -29,7 +31,7 @@ std::pair<bool, std::string> execCommandCppNative(const std::string& cmd) {
 
     std::string compileErr;
     auto command = mc->mCommands->compileCommand(
-        cmd,
+        ::HashedString(std::string_view(cmd)),
         origin,
         ::CurrentCmdVersion::Latest,
         [&](std::string const& err) { compileErr.append(err).append("\n"); }
