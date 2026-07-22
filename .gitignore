@@ -26,4 +26,7 @@ bin/
 
 # compile_commands.json (generated)
 compile_commands.json
+
+# tmp folders
 tmp/
+temp/

@@ -1,15 +1,19 @@
+> **[📖 部署运维手册 (docs/prod.md)](docs/prod.md)**
+> **[📖 开发编译指南 (docs/dev.md)](docs/dev.md)**
+
 ![levilamina-plugin-mclistener-ws-server](https://socialify.git.ci/VincentZyuApps/levilamina-plugin-mclistener-ws-server/image?custom_description=%F0%9F%8E%AE%F0%9F%93%A1+%E5%9F%BA%E4%BA%8E+LeviLamina+%E7%9A%84+WebSocket+%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%8F%92%E4%BB%B6%E3%80%82%E9%80%9A%E8%BF%87+WebSocket+%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%88%E5%A6%82+Koishi+%E6%9C%BA%E5%99%A8%E4%BA%BA%EF%BC%89%EF%BC%8C%E5%AE%9E%E7%8E%B0%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C%E5%9F%BA%E5%B2%A9%E7%89%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8E+QQ%E3%80%81Kook%E3%80%81Discord%E3%80%81Telegram+%E7%AD%89%E8%81%8A%E5%A4%A9%E5%B9%B3%E5%8F%B0%E7%9A%84%E4%BA%92%E9%80%9A%E3%80%82%F0%9F%92%AC%F0%9F%A4%96&description=1&font=JetBrains+Mono&forks=1&issues=1&language=1&logo=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F78095377%3Fs%3D200%26v%3D4&name=1&owner=1&pulls=1&stargazers=1&theme=Auto&v=4)
 
-# mclistener-ws-server
+# levilamina-plugin-mclistener-ws-server
 
-> 🌐 基岩版 Minecraft 群服互通 WebSocket 服务端插件：对接 Koishi 客户端，实现双向消息转发、玩家进出通知。  
+> 🌐 基岩版 Minecraft 服务端 Levilamina 群服互通 WebSocket 插件：对接 Koishi 客户端，实现双向消息转发、玩家进出通知。  
 
 > 🌐 A WebSocket server plugin for LeviLamina to bridge Minecraft Bedrock Server with chat platforms via Koishi.
 
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server)
 [![Gitee](https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white)](https://gitee.com/vincent-zyu/levilamina-plugin-mclistener-ws-server)
 
-[![LeviLamina](https://img.shields.io/badge/for-LeviLamina-7FA973?style=for-the-badge&logo=cplusplus&logoColor=white&labelColor=2C5E3B)](https://github.com/LiteLDev/LeviLamina)
+[![LeviLamina](https://img.shields.io/badge/for-LeviLamina-7fa772?style=for-the-badge&logo=cplusplus&logoColor=white&labelColor=f34b7d)](https://github.com/LiteLDev/LeviLamina)
+[![Minecraft Bedrock Edition](https://img.shields.io/badge/for-Minecraft_Bedrock_Edition-2A5E38?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzZCNEUyRSIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSI2IiBmaWxsPSIjM0Q3QTJFIi8%2BPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzVCOUEzRSIvPjxyZWN0IHg9IjgiIHk9IjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiBmaWxsPSIjNUI5QTNFIi8%2BPHJlY3QgeD0iMTIiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSIyIiB5PSI4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iNiIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzhCNkI0RSIvPjxyZWN0IHg9IjEyIiB5PSI2IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iMCIgeT0iMTIiIHdpZHRoPSI2IiBoZWlnaHQ9IjQiIGZpbGw9IiM4QjZCNEUiLz48cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIGZpbGw9IiM4QjZCNEUiLz48L3N2Zz4%3D&labelColor=6B4E2E)](https://apps.microsoft.com/detail/9nqgktxr9bzf?hl=zh-CN)
 
 [![xmake](https://img.shields.io/badge/xmake-v2.9.7-0094D9?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTE4LjkgNS4xTDEyIDEybDYuOSA2LjktMS40IDEuNEwxMiAxMy40bC02LjkgNi45LTEuNC0xLjRMMTAuNiAxMiAzLjcgNS4xbDEuNC0xLjRMMTIgMTAuNmw2LjktNi45IDEuNCAxLjR6IiBmaWxsPSIjZmZmIi8+PC9zdmc+)](https://xmake.io)
 [![C++20](https://img.shields.io/badge/C++-20-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/20)
@@ -25,9 +29,6 @@
 <p>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>1085190201</b> 🎉</p>
 <p>💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
-> **[📖 部署运维手册 (docs/prod.md)](docs/prod.md)**
-> **[📖 开发编译指南 (docs/dev.md)](docs/dev.md)**
-
 ---
 
 ## 🚀 3 分钟快速上手
@@ -35,7 +36,7 @@
 ### Step 1: 安装服务端插件
 
 ```bash
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.26
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.5-alpha.27
 # 如果你的环境里 lip 解析 latest-version 正常，也可以尝试：
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 # 如果是已经安装，想要更新
@@ -93,7 +94,7 @@ lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
 
 支持 LeviLamina 26.10.x 的 Minecraft 基岩版专用服务器 (BDS)。
 
-> 如果你运行的是 **MCDReforged (Java版)**，请使用 [mcdr_listener_ws_server](https://github.com/VincentZyuApps/mcdr_listener_ws_server)（与本插件使用同一 WebSocket 协议，可共用 Koishi 客户端）。
+> 如果你运行的是 **Minecraft Java版 服务端，并使用MCDReforged托管**，请使用 [![MCDR](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://mcdreforged.com/zh-CN) [mcdr_listener_ws_server](https://github.com/VincentZyuApps/mcdr_listener_ws_server)（与本插件使用同一 WebSocket 协议，可共用 Koishi 客户端）。
 
 ---
 
@@ -151,7 +152,7 @@ lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
 ```bash
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@<版本号>
 # 比如：
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.3-alpha.26
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.5-alpha.27
 # 如果你的环境里 latest-version 解析正常，也可以尝试让lip直接解析最新的版本号
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```

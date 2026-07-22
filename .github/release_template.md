@@ -1,7 +1,7 @@
 <div align=center>
 
 [![Downloads](https://img.shields.io/github/downloads/__REPO__/__VERSION__/total?style=flat-square&logo=github)](https://github.com/__REPO__/releases/tag/__VERSION__)
-[![LeviLamina](https://img.shields.io/badge/for-LeviLamina-7FA973?style=flat-square&logo=cplusplus&logoColor=white&labelColor=2C5E3B)](https://github.com/LiteLDev/LeviLamina)
+[![LeviLamina](https://img.shields.io/badge/for-LeviLamina-7fa772?style=flat-square&logo=cplusplus&logoColor=white&labelColor=f34b7d)](https://github.com/LiteLDev/LeviLamina)
 
 </div>
 

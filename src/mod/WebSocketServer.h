@@ -6,6 +6,8 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
 #include <set>
 
 // Windows headers
@@ -54,6 +56,12 @@ public:
     bool isRunning() const { return mRunning; }
 
 private:
+    struct WebSocketFrame {
+        std::uint8_t opcode = 0;
+        bool fin = false;
+        std::string payload;
+    };
+
     // 接受连接的线程函数
     void acceptLoop();
 
@@ -65,9 +73,14 @@ private:
 
     // 发送 WebSocket 帧
     bool sendFrame(SOCKET clientSocket, const std::string& message);
+    bool sendFrame(SOCKET clientSocket, std::uint8_t opcode, const std::string& payload);
 
     // 接收 WebSocket 帧
-    std::string receiveFrame(SOCKET clientSocket);
+    bool receiveFrame(SOCKET clientSocket, WebSocketFrame& frame);
+
+    // TCP 是字节流，单次 send/recv 不保证处理完整缓冲区
+    bool recvExact(SOCKET socket, void* buffer, size_t length);
+    bool sendAll(SOCKET socket, const void* buffer, size_t length);
 
     // 计算 WebSocket Accept Key
     std::string computeAcceptKey(const std::string& clientKey);
@@ -87,6 +100,7 @@ private:
     std::thread mAcceptThread;
     
     std::mutex mClientsMutex;
+    std::mutex mSendMutex;
     std::set<SOCKET> mClients;
     
     MessageCallback mMessageCallback;
