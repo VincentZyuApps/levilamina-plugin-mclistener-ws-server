@@ -7,7 +7,7 @@
 
 // ── 元数据（与 tooth.json 一致）───────────────────────
 const PLUGIN_NAME    = "mclistener-ws-server";
-const PLUGIN_VERSION = "0.6.5-alpha.27";
+const PLUGIN_VERSION = "0.6.5-alpha.28";
 const PLUGIN_REPO    = "github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server";
 
 // ── 配置（需与 C++ 插件 config.json 中的 port / wsToken 保持一致）──

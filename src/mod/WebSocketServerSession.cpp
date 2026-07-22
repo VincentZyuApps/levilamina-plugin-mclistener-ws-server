@@ -6,6 +6,23 @@
 
 namespace mclistener_ws_server {
 
+size_t WebSocketServer::closeClient(SOCKET clientSocket) {
+    bool owned = false;
+    size_t remainingClients = 0;
+    {
+        std::lock_guard<std::mutex> lock(mClientsMutex);
+        mClients.erase(clientSocket);
+        owned = mSessionSockets.erase(clientSocket) > 0;
+        remainingClients = mClients.size();
+    }
+
+    if (owned) {
+        shutdown(clientSocket, SD_BOTH);
+        closesocket(clientSocket);
+    }
+    return remainingClients;
+}
+
 void WebSocketServer::handleClient(SOCKET clientSocket) {
     mMod->getSelf().getLogger().debug("【-- WS handshake --】 Performing WebSocket handshake...");
 
@@ -13,7 +30,7 @@ void WebSocketServer::handleClient(SOCKET clientSocket) {
     bool urlAuthPassed = false;
     if (!performHandshake(clientSocket, urlAuthPassed)) {
         mMod->getSelf().getLogger().warn("【-- WS handshake --】 WebSocket handshake failed for socket {}", static_cast<int>(clientSocket));
-        closesocket(clientSocket);
+        closeClient(clientSocket);
         return;
     }
 
@@ -41,7 +58,7 @@ void WebSocketServer::handleClient(SOCKET clientSocket) {
             } catch (...) {}
             if (!authOk) {
                 mMod->getSelf().getLogger().warn("【-- WS auth --】 Message auth failed or timed out, rejecting socket {}", static_cast<int>(clientSocket));
-                closesocket(clientSocket);
+                closeClient(clientSocket);
                 return;
             }
             mMod->getSelf().getLogger().debug("【-- WS auth --】 Message auth passed");
@@ -100,15 +117,8 @@ void WebSocketServer::handleClient(SOCKET clientSocket) {
         }
     }
 
-    // 从客户端列表中移除
-    size_t remainingClients = 0;
-    {
-        std::lock_guard<std::mutex> lock(mClientsMutex);
-        mClients.erase(clientSocket);
-        remainingClients = mClients.size();
-    }
-
-    closesocket(clientSocket);
+    // 关闭连接并从客户端列表中移除
+    const size_t remainingClients = closeClient(clientSocket);
     mMod->getSelf().getLogger().info("【-- WS client --】 WebSocket client disconnected, remaining clients: {}", remainingClients);
 }
 

@@ -213,6 +213,12 @@ bool MclistenerWsServerMod::disable() {
     return true;
 }
 
+bool MclistenerWsServerMod::unload() {
+    getSelf().getLogger().info("【-- Plugin --】 Unloading mclistener-ws-server...");
+    getSelf().getLogger().info("【-- Plugin --】 mclistener-ws-server unloaded successfully!");
+    return true;
+}
+
 } // namespace mclistener_ws_server
 
 LL_REGISTER_MOD(mclistener_ws_server::MclistenerWsServerMod, mclistener_ws_server::MclistenerWsServerMod::getInstance());

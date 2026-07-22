@@ -1,6 +1,7 @@
 #include "mod/WebSocketServer.h"
 #include "mod/MclistenerWsServerMod.h"
 
+#include <exception>
 #include <utility>
 #include <vector>
 
@@ -80,13 +81,12 @@ bool WebSocketServer::start() {
 }
 
 void WebSocketServer::stop() {
-    if (!mRunning) {
+    if (!mRunning.exchange(false)) {
         mMod->getSelf().getLogger().debug("【-- WS server --】 WebSocket server already stopped");
         return;
     }
 
     mMod->getSelf().getLogger().debug("【-- WS server --】 Stopping WebSocket server...");
-    mRunning = false;
 
     // 关闭服务器 socket，这会让 accept() 返回
     if (mServerSocket != INVALID_SOCKET) {
@@ -95,20 +95,36 @@ void WebSocketServer::stop() {
         mServerSocket = INVALID_SOCKET;
     }
 
-    // 关闭所有客户端连接
-    {
-        std::lock_guard<std::mutex> lock(mClientsMutex);
-        mMod->getSelf().getLogger().debug("【-- WS server --】 Closing {} client connections...", mClients.size());
-        for (SOCKET client : mClients) {
-            closesocket(client);
-        }
-        mClients.clear();
-    }
-
     // 等待接受线程结束
     if (mAcceptThread.joinable()) {
         mMod->getSelf().getLogger().trace("【-- WS server --】 Waiting for accept thread to finish...");
         mAcceptThread.join();
+    }
+
+    // 唤醒所有可能阻塞在握手或接收操作中的客户端线程
+    {
+        std::lock_guard<std::mutex> lock(mClientsMutex);
+        mMod->getSelf().getLogger().debug(
+            "【-- WS server --】 Shutting down {} client sessions...",
+            mSessionSockets.size()
+        );
+        for (SOCKET client : mSessionSockets) {
+            shutdown(client, SD_BOTH);
+        }
+    }
+
+    // DLL 卸载前必须等待所有客户端线程彻底退出
+    for (auto& clientThread : mClientThreads) {
+        if (clientThread.thread.joinable()) {
+            clientThread.thread.join();
+        }
+    }
+    mClientThreads.clear();
+
+    {
+        std::lock_guard<std::mutex> lock(mClientsMutex);
+        mClients.clear();
+        mSessionSockets.clear();
     }
 
     WSACleanup();
@@ -147,9 +163,24 @@ void WebSocketServer::setMessageCallback(MessageCallback callback) {
     mMod->getSelf().getLogger().debug("【-- WS callback --】 Message callback set");
 }
 
+void WebSocketServer::reapFinishedClientThreads() {
+    for (auto it = mClientThreads.begin(); it != mClientThreads.end();) {
+        if (!it->finished || !it->finished->load(std::memory_order_acquire)) {
+            ++it;
+            continue;
+        }
+        if (it->thread.joinable()) {
+            it->thread.join();
+        }
+        it = mClientThreads.erase(it);
+    }
+}
+
 void WebSocketServer::acceptLoop() {
     mMod->getSelf().getLogger().debug("【-- WS accept --】 Accept loop started");
     while (mRunning) {
+        reapFinishedClientThreads();
+
         sockaddr_in clientAddr{};
         int clientAddrLen = sizeof(clientAddr);
 
@@ -166,6 +197,19 @@ void WebSocketServer::acceptLoop() {
             continue;
         }
 
+        bool sessionAccepted = false;
+        {
+            std::lock_guard<std::mutex> lock(mClientsMutex);
+            if (mRunning) {
+                mSessionSockets.insert(clientSocket);
+                sessionAccepted = true;
+            }
+        }
+        if (!sessionAccepted) {
+            closesocket(clientSocket);
+            break;
+        }
+
         // 获取客户端 IP
         char clientIP[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, INET_ADDRSTRLEN);
@@ -173,11 +217,35 @@ void WebSocketServer::acceptLoop() {
         mMod->getSelf().getLogger().debug("【-- WS accept --】 Client socket: {}", static_cast<int>(clientSocket));
 
         // 在新线程中处理客户端
-        std::thread([this, clientSocket, clientIP = std::string(clientIP)]() {
-            mMod->getSelf().getLogger().trace("【-- WS accept --】 Starting client handler thread for {}", clientIP);
-            handleClient(clientSocket);
-        }).detach();
+        bool workerAdded = false;
+        try {
+            auto finished = std::make_shared<std::atomic<bool>>(false);
+            mClientThreads.emplace_back();
+            workerAdded = true;
+            auto& worker = mClientThreads.back();
+            worker.finished = finished;
+            worker.thread = std::thread([this, clientSocket, clientIP = std::string(clientIP), finished]() {
+                try {
+                    mMod->getSelf().getLogger().trace("【-- WS accept --】 Starting client handler thread for {}", clientIP);
+                    handleClient(clientSocket);
+                } catch (const std::exception& e) {
+                    mMod->getSelf().getLogger().error("【-- WS client --】 Unhandled client thread error: {}", e.what());
+                    closeClient(clientSocket);
+                } catch (...) {
+                    mMod->getSelf().getLogger().error("【-- WS client --】 Unknown client thread error");
+                    closeClient(clientSocket);
+                }
+                finished->store(true, std::memory_order_release);
+            });
+        } catch (const std::exception& e) {
+            if (workerAdded) {
+                mClientThreads.pop_back();
+            }
+            closeClient(clientSocket);
+            mMod->getSelf().getLogger().error("【-- WS accept --】 Failed to start client thread: {}", e.what());
+        }
     }
+    reapFinishedClientThreads();
     mMod->getSelf().getLogger().debug("【-- WS accept --】 Accept loop ended");
 }
 

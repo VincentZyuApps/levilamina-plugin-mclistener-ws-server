@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <set>
+#include <vector>
 
 // Windows headers
 #ifndef WIN32_LEAN_AND_MEAN
@@ -62,11 +63,22 @@ private:
         std::string payload;
     };
 
+    struct ClientThread {
+        std::thread thread;
+        std::shared_ptr<std::atomic<bool>> finished;
+    };
+
     // 接受连接的线程函数
     void acceptLoop();
 
     // 处理单个客户端连接
     void handleClient(SOCKET clientSocket);
+
+    // 关闭并移除客户端连接
+    size_t closeClient(SOCKET clientSocket);
+
+    // 回收已经结束的客户端线程
+    void reapFinishedClientThreads();
 
     // WebSocket 握手
     bool performHandshake(SOCKET clientSocket, bool& urlAuthPassed);
@@ -102,6 +114,8 @@ private:
     std::mutex mClientsMutex;
     std::mutex mSendMutex;
     std::set<SOCKET> mClients;
+    std::set<SOCKET> mSessionSockets;
+    std::vector<ClientThread> mClientThreads;
     
     MessageCallback mMessageCallback;
 };

@@ -33,6 +33,9 @@ public:
     /// @return True if the mod is disabled successfully.
     bool disable();
 
+    /// @return True if the mod is unloaded successfully.
+    bool unload();
+
 private:
     ll::mod::NativeMod& mSelf;
     Config mConfig;
