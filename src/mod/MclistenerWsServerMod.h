@@ -76,7 +76,7 @@ private:
     ll::event::ListenerPtr mPlayerChatListener;
     ll::event::ListenerPtr mLevelTickListener;
 
-    // WS 工作线程只入队，LevelTickEvent 在服务器线程中执行游戏 API。
+    // WS 工作线程只入队，ServerLevelTickEvent 在服务器线程中执行游戏 API。
     std::atomic_bool mAcceptingGroupMessages{false};
     std::mutex mGroupMessageQueueMutex;
     std::deque<PendingGroupMessage> mGroupMessageQueue;

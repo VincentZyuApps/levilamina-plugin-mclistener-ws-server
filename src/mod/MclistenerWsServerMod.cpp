@@ -8,7 +8,7 @@
 #include "ll/api/event/player/PlayerJoinEvent.h"
 #include "ll/api/event/player/PlayerDisconnectEvent.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
-#include "ll/api/event/world/LevelTickEvent.h"
+#include "ll/api/event/world/ServerLevelTickEvent.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/io/LogLevel.h"
 #include "ll/api/memory/Hook.h"
@@ -208,8 +208,8 @@ bool MclistenerWsServerMod::enable() {
     auto& eventBus = ll::event::EventBus::getInstance();
 
     if (mConfig.enableReceiveGroupMessage) {
-        mLevelTickListener = eventBus.emplaceListener<ll::event::LevelTickEvent>(
-            [this](ll::event::LevelTickEvent& event) {
+        mLevelTickListener = eventBus.emplaceListener<ll::event::ServerLevelTickEvent>(
+            [this](ll::event::ServerLevelTickEvent& event) {
                 drainGroupMessages(event.level());
             }
         );
@@ -217,7 +217,7 @@ bool MclistenerWsServerMod::enable() {
         mWsServer->setMessageCallback([this](const std::string& message) {
             handleWsMessage(message, mConfig, mWsServer.get(), this);
         });
-        getSelf().getLogger().debug("【-- Event --】 LevelTickEvent listener registered");
+        getSelf().getLogger().debug("【-- Event --】 ServerLevelTickEvent listener registered");
         getSelf().getLogger().debug("【-- Callback --】 Message callback registered successfully");
     }
 
