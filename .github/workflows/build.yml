@@ -100,11 +100,14 @@ jobs:
       - name: Update xmake repositories
         run: xmake repo -u
 
+      - name: Disable precompiled xmake packages
+        run: xmake g --policies=package.precompiled:n
+
       - name: Configure
-        run: xmake f -y -p windows -a x64 -m release
+        run: xmake f -vD -y -p windows -a x64 -m release
 
       - name: Build
-        run: xmake
+        run: xmake -vD
 
       - name: Verify packaged manifest version
         shell: pwsh
