@@ -36,7 +36,7 @@
 ### Step 1: 安装服务端插件
 
 ```bash
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.5-alpha.30
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.5-alpha.31
 # 如果你的环境里 lip 解析 latest-version 正常，也可以尝试：
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 # 如果是已经安装，想要更新
@@ -152,7 +152,7 @@ lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
 ```bash
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@<版本号>
 # 比如：
-lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.5-alpha.30
+lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server@0.6.5-alpha.31
 # 如果你的环境里 latest-version 解析正常，也可以尝试让lip直接解析最新的版本号
 lip install github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server
 ```

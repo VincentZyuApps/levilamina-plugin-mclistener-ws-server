@@ -11,7 +11,6 @@
 #include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/CurrentCmdVersion.h"
 #include "mc/server/ServerLevel.h"
-#include "mc/world/level/dimension/VanillaDimensions.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/server/commands/Command.h"
 #include "mc/locale/I18n.h"
@@ -27,7 +26,7 @@ std::pair<bool, std::string> execCommandCppNative(const std::string& cmd) {
 
     auto& serverLevel = static_cast<::ServerLevel&>(*lv);
     auto  origin = ::ServerCommandOrigin(
-        "ws-native", serverLevel, ::CommandPermissionLevel::Owner, ::VanillaDimensions::Overworld());
+        "ws-native", serverLevel, ::CommandPermissionLevel::Owner, ::DimensionType{0});
 
     std::string compileErr;
     auto command = mc->mCommands->compileCommand(
