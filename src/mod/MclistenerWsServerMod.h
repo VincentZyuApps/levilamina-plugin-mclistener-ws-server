@@ -4,7 +4,14 @@
 #include "ll/api/event/ListenerBase.h"
 #include "mod/Config.h"
 
+#include <atomic>
+#include <cstddef>
+#include <deque>
 #include <memory>
+#include <mutex>
+#include <string>
+
+class Level;
 
 namespace mclistener_ws_server {
 
@@ -24,6 +31,13 @@ public:
 
     [[nodiscard]] WebSocketServer* getWebSocketServer() const { return mWsServer.get(); }
 
+    bool enqueueGroupMessage(
+        std::string groupName,
+        std::string nickname,
+        std::string content,
+        std::string formattedMessage
+    );
+
     /// @return True if the mod is loaded successfully.
     bool load();
 
@@ -37,6 +51,19 @@ public:
     bool unload();
 
 private:
+    struct PendingGroupMessage {
+        std::string groupName;
+        std::string nickname;
+        std::string content;
+        std::string formattedMessage;
+    };
+
+    static constexpr std::size_t MaxQueuedGroupMessages = 256;
+    static constexpr std::size_t MaxGroupMessagesPerTick = 32;
+
+    void drainGroupMessages(Level& level);
+    void clearGroupMessages();
+
     ll::mod::NativeMod& mSelf;
     Config mConfig;
     
@@ -47,6 +74,12 @@ private:
     ll::event::ListenerPtr mPlayerJoinListener;
     ll::event::ListenerPtr mPlayerLeaveListener;
     ll::event::ListenerPtr mPlayerChatListener;
+    ll::event::ListenerPtr mLevelTickListener;
+
+    // WS 工作线程只入队，LevelTickEvent 在服务器线程中执行游戏 API。
+    std::atomic_bool mAcceptingGroupMessages{false};
+    std::mutex mGroupMessageQueueMutex;
+    std::deque<PendingGroupMessage> mGroupMessageQueue;
 };
 
 } // namespace mclistener_ws_server

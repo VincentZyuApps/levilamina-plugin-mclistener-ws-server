@@ -3,10 +3,6 @@
 #include "mod/WebSocketServer.h"
 #include "mod/ExecCommandNative.h"
 
-#include "ll/api/service/Bedrock.h"
-#include "mc/world/actor/player/Player.h"
-#include "mc/world/level/Level.h"
-
 #include <nlohmann/json.hpp>
 
 namespace mclistener_ws_server {
@@ -37,16 +33,7 @@ void handleWsMessage(
             while ((pos = formattedMsg.find("{nickname}"))   != std::string::npos) formattedMsg.replace(pos, 10, nickname);
             while ((pos = formattedMsg.find("{message}"))    != std::string::npos) formattedMsg.replace(pos, 9,  content);
 
-            auto level = ll::service::getLevel();
-            if (level) {
-                level->forEachPlayer([&formattedMsg](Player& player) -> bool {
-                    player.sendMessage(formattedMsg);
-                    return true;
-                });
-            } else {
-                logger.warn("【-- Group -> Server --】 Level not available, cannot broadcast message");
-            }
-            logger.info("【-- Group -> Server --】 [{}] {}: {}", groupName, nickname, content);
+            mod->enqueueGroupMessage(groupName, nickname, content, formattedMsg);
 
         } else if (type == "external_command_to_server") {
             auto mode = config.execCommandMode;

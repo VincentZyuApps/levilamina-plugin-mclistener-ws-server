@@ -8,6 +8,7 @@
 #include "ll/api/event/player/PlayerJoinEvent.h"
 #include "ll/api/event/player/PlayerDisconnectEvent.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
+#include "ll/api/event/world/LevelTickEvent.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/io/LogLevel.h"
 #include "ll/api/memory/Hook.h"
@@ -21,6 +22,7 @@
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <cctype>
+#include <utility>
 
 namespace mclistener_ws_server {
 
@@ -84,6 +86,75 @@ MclistenerWsServerMod& MclistenerWsServerMod::getInstance() {
     return instance;
 }
 
+bool MclistenerWsServerMod::enqueueGroupMessage(
+    std::string groupName,
+    std::string nickname,
+    std::string content,
+    std::string formattedMessage
+) {
+    std::lock_guard<std::mutex> lock(mGroupMessageQueueMutex);
+    if (!mAcceptingGroupMessages.load(std::memory_order_acquire)) {
+        getSelf().getLogger().debug("【-- Group -> Server --】 Ignoring message while plugin is stopping");
+        return false;
+    }
+    if (mGroupMessageQueue.size() >= MaxQueuedGroupMessages) {
+        getSelf().getLogger().warn(
+            "【-- Group -> Server --】 Message queue is full ({}), dropping message from [{}] {}",
+            MaxQueuedGroupMessages,
+            groupName,
+            nickname
+        );
+        return false;
+    }
+
+    mGroupMessageQueue.push_back(PendingGroupMessage{
+        std::move(groupName),
+        std::move(nickname),
+        std::move(content),
+        std::move(formattedMessage)
+    });
+    return true;
+}
+
+void MclistenerWsServerMod::drainGroupMessages(Level& level) {
+    std::deque<PendingGroupMessage> pendingMessages;
+    {
+        std::lock_guard<std::mutex> lock(mGroupMessageQueueMutex);
+        const auto count = std::min(mGroupMessageQueue.size(), MaxGroupMessagesPerTick);
+        for (std::size_t i = 0; i < count; ++i) {
+            pendingMessages.push_back(std::move(mGroupMessageQueue.front()));
+            mGroupMessageQueue.pop_front();
+        }
+    }
+
+    for (const auto& message : pendingMessages) {
+        std::size_t recipientCount = 0;
+        level.forEachPlayer([&message, &recipientCount](Player& player) -> bool {
+            player.sendMessage(message.formattedMessage);
+            ++recipientCount;
+            return true;
+        });
+        getSelf().getLogger().info(
+            "【-- Group -> Server --】 [{}] {}: {} (sent to {} players)",
+            message.groupName,
+            message.nickname,
+            message.content,
+            recipientCount
+        );
+    }
+}
+
+void MclistenerWsServerMod::clearGroupMessages() {
+    std::lock_guard<std::mutex> lock(mGroupMessageQueueMutex);
+    if (!mGroupMessageQueue.empty()) {
+        getSelf().getLogger().debug(
+            "【-- Group -> Server --】 Clearing {} queued messages",
+            mGroupMessageQueue.size()
+        );
+        mGroupMessageQueue.clear();
+    }
+}
+
 bool MclistenerWsServerMod::load() {
     auto& logger = getSelf().getLogger();
     logger.info("");
@@ -125,20 +196,30 @@ bool MclistenerWsServerMod::load() {
 bool MclistenerWsServerMod::enable() {
     getSelf().getLogger().info("【-- Plugin --】 Enabling mclistener-ws-server...");
 
+    mAcceptingGroupMessages.store(false, std::memory_order_release);
+    clearGroupMessages();
+
     mWsServer = std::make_unique<WebSocketServer>(mConfig.host, mConfig.port, this);
     if (!mWsServer->start()) {
         getSelf().getLogger().fatal("【-- Plugin --】 Plugin cannot function without WebSocket server!");
         return false;
     }
 
+    auto& eventBus = ll::event::EventBus::getInstance();
+
     if (mConfig.enableReceiveGroupMessage) {
+        mLevelTickListener = eventBus.emplaceListener<ll::event::LevelTickEvent>(
+            [this](ll::event::LevelTickEvent& event) {
+                drainGroupMessages(event.level());
+            }
+        );
+        mAcceptingGroupMessages.store(true, std::memory_order_release);
         mWsServer->setMessageCallback([this](const std::string& message) {
             handleWsMessage(message, mConfig, mWsServer.get(), this);
         });
+        getSelf().getLogger().debug("【-- Event --】 LevelTickEvent listener registered");
         getSelf().getLogger().debug("【-- Callback --】 Message callback registered successfully");
     }
-
-    auto& eventBus = ll::event::EventBus::getInstance();
 
     if (mConfig.enablePlayerJoinBroadcast) {
         mPlayerJoinListener = eventBus.emplaceListener<ll::event::PlayerJoinEvent>(
@@ -199,6 +280,7 @@ bool MclistenerWsServerMod::enable() {
 
 bool MclistenerWsServerMod::disable() {
     getSelf().getLogger().info("【-- Plugin --】 Disabling mclistener-ws-server...");
+    mAcceptingGroupMessages.store(false, std::memory_order_release);
     hookEnabled = false;
     g_modInstance = nullptr;
 
@@ -207,7 +289,14 @@ bool MclistenerWsServerMod::disable() {
     if (mPlayerLeaveListener) { eventBus.removeListener(mPlayerLeaveListener); mPlayerLeaveListener = nullptr; }
     if (mPlayerChatListener)  { eventBus.removeListener(mPlayerChatListener);  mPlayerChatListener  = nullptr; }
 
-    if (mWsServer) { mWsServer->stop(); mWsServer.reset(); }
+    if (mWsServer) { mWsServer->stop(); }
+
+    if (mLevelTickListener) {
+        eventBus.removeListener(mLevelTickListener);
+        mLevelTickListener = nullptr;
+    }
+    clearGroupMessages();
+    mWsServer.reset();
 
     getSelf().getLogger().info("【-- Plugin --】 mclistener-ws-server disabled successfully!");
     return true;
