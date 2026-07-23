@@ -80,7 +80,7 @@ flowchart TB
 
 ```json
 {
-    "version": "0.6.5-alpha.28"
+    "version": "0.6.5-alpha.29"
 }
 ```
 
@@ -114,14 +114,12 @@ mclistener-ws-server/
 可以从 GitHub 仓库的 Actions 页面手动触发工作流：
 
 1. 进入 **Actions → Build & Release → Run workflow**
-2. 可选填写：
-   - **Version**：覆盖 `tooth.json` 的版本号
-   - **Create GitHub Release**：勾选以创建 Release
+2. 可选勾选 **Create GitHub Release** 以创建 Release
+
+构建、Artifact 与 Release 始终使用 `tooth.json` 中的版本号。
 
 ```
-           ┌─ 有输入版本 ──→ 使用输入的版本
-workflow ──┤
-dispatch   └─ 无输入版本 ──→ 使用 tooth.json 的版本
+workflow dispatch ──→ 读取 tooth.json 版本 ──→ 构建与可选发布
 
 ```
 

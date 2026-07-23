@@ -1,9 +1,9 @@
-# xmake
+# 🛠️ xmake 本地状态与构建目录
 .xmake/
 build/
 bin/
 
-# IDE
+# 💻 IDE 配置文件
 .vs/
 .vscode/
 *.user
@@ -11,7 +11,7 @@ bin/
 *.vcxproj*
 *.sln
 
-# Build outputs
+# 📦 构建产物
 *.dll
 *.pdb
 *.lib
@@ -19,14 +19,14 @@ bin/
 *.obj
 *.ilk
 
-# cache
+# 🗃️ 缓存文件
 .cache/
 **/__pycache__/
 *.py[cod]
 
-# compile_commands.json (generated)
+# 🧾 自动生成的 compile_commands.json
 compile_commands.json
 
-# tmp folders
+# 🧹 临时目录
 tmp/
 temp/

@@ -7,10 +7,6 @@ on:
     branches: [main, master]
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Override version (leave empty to use tooth.json)'
-        required: false
-        default: ''
       create_release:
         description: 'Create GitHub Release'
         type: boolean
@@ -43,10 +39,6 @@ jobs:
           COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           VERSION=$(jq -r '.version' tooth.json)
-
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-          fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "📦 Version: $VERSION"
@@ -113,6 +105,21 @@ jobs:
 
       - name: Build
         run: xmake
+
+      - name: Verify packaged manifest version
+        shell: pwsh
+        run: |
+          $manifestPath = "bin/mclistener-ws-server/manifest.json"
+          if (-not (Test-Path -LiteralPath $manifestPath)) {
+            throw "Packaged manifest not found: $manifestPath"
+          }
+
+          $expected = (Get-Content -LiteralPath "tooth.json" -Raw | ConvertFrom-Json).version
+          $actual = (Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json).version
+          if ($actual -ne $expected) {
+            throw "Manifest version mismatch: expected '$expected', got '$actual'"
+          }
+          Write-Host "Manifest version verified: $actual"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
